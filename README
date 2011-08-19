@@ -1,0 +1,6 @@
+Sudoku solver
+
+The goal for this program is to see if I could build a sudoku solver. If I can solve a sudoku, would I be clever enough to convert my method of solving the sudokus into a computer program.
+
+I try to make the program as simple as possible, yet as smart as possible.
+Later on I will make additions to it. Build in more and more algorithms for solving the sudoku.
