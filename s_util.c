@@ -1,10 +1,11 @@
+#include <stdlib.h>
 #include "s_util.h"
 #include "const.h"
 
-int readfield(FILE *fd)
+int readfield(FILE fd)
 {
 	int i;
-	extern struct squares field[81];
+	extern struct square field[81];
 	for (i=0; i<81; i++) {
 		field[i].value = atoi(fgetc(fd));
 	}
@@ -112,9 +113,12 @@ void fill_block(int blocknum, int value)
 {
 	/* remove possibilities */
 	int i;
+	extern struct single block[9];
 	for (i=0; i<81; i++) {
 		if ((i_to_block(i) == blocknum)
-		    && (field[i].value == 0)) {
+		    && (field[i].value == 0) 
+		    && (field[i].possible & vtom(value))
+		    ) {
 			field[i].possible ~= vtom(value);
 			field[i].left--;
 		}
@@ -128,9 +132,12 @@ void fill_row(int rownum, int value)
 {
 	/* remove possibilities */
 	int i;
+	extern struct single row[9];
 	for (i=0; i<81; i++) {
 		if ((i_to_row(i) == rownum)
-		    && (field[i].value == 0)) {
+		    && (field[i].value == 0)
+		    && (field[i].possible & vtom(value))
+		    ) {
 			field[i].possible ~= vtom(value);
 			field[i].left--;
 		}
@@ -142,11 +149,14 @@ void fill_row(int rownum, int value)
 
 void fill_col(int colnum, int value)
 {
-	/* remove possibilityes */
+	/* remove possibilities */
 	int i;
+	extern struct single col[9];
 	for (i=0; i<81; i++) {
 		if ((i_to_col(i) == colnum)
-		    && (field[i].value == 0)) {
+		    && (field[i].value == 0)
+		    && (field[i].possible & vtom(value))
+		    ) {
 			field[i].possible ~= vtom(value);
 			field[i].left--;
 		}
@@ -156,6 +166,8 @@ void fill_col(int colnum, int value)
 	col[colnum].filled |= vtom(value);
 }
 
+
+/* is the number still a possibility? */
 int get_value(int possib)
 {
 	if (possib & ONE)
