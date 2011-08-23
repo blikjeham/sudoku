@@ -20,6 +20,7 @@ void check_filled(void)
 		} else {
 			if (field[i].left == 1) {
 				field[i].value = mtov(field[i].possible);
+				field[i].left--;
 			}
 		}
 	}
@@ -44,7 +45,7 @@ int main(int argc, char **argv)
 		printf("error opening file\n");
 		exit(1);
 	}
-	if(readfield(fd)) {
+	if(readfield(*fd)) {
 		printf("error reading field\n");
 		exit(1);
 	}
