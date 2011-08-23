@@ -16,8 +16,18 @@ void fill_all(void)
 {
 	int i;
 	for (i=0; i<81; i++) {
-		if (field[i].value == 0) 
+	  if (field[i].value == 0) {
 			field[i].possible = ALL;
+			field[i].left = 9;
+	  }
+	}
+	for (i=0; i<9; i++) {
+	  row[i].filled = 0;
+	  row[i].notfilled = ALL;
+	  col[i].filled = 0;
+	  col[i].notfilled = ALL;
+	  block[i].filled = 0;
+	  block[i].notfilled = ALL;
 	}
 }
 

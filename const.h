@@ -25,6 +25,7 @@ struct square {
 
 struct single {
 	int filled;
+  int notfilled;
 };
 
 #endif /* CONST_H */
