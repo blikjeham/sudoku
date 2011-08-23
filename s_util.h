@@ -6,8 +6,10 @@
 #ifndef S_UTIL_H
 #define S_UTIL_H 1
 
+#include <stdio.h>
+
 /* read the values from a file */
-int readfield(FILE *);
+int readfield(FILE );
 
 /* fill all empty fields with all possibilities
    We will remove these possibilities one by one
@@ -26,13 +28,9 @@ int i_to_col(int );
 int vtom(int );
 int mtov(int );
 
-/* */
+/* Remove the possibilities for a value from a block, row or  column */
 void fill_block(int , int );
-
-/* */
 void fill_row(int , int );
-
-/* */
 void fill_col(int , int );
 
 /* convert a possibilities field to a single value */
