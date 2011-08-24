@@ -76,6 +76,73 @@ int i_to_brc(int brc, int where)
 	return(0);
 }
 
+int check_num(int brc, int where, int mask)
+{
+	int i;
+	int num=0;
+
+	for (i=0; i<81; i++) {
+		if ( (i_to_brc(brc, i) == where)
+		     && (field[i].value == 0)
+		     && (field[i].possible & mask)
+		     ) {
+			num++;
+		}
+	}
+	return(num);
+}
+
+void set_num(int brc, int where, int value)
+{
+	int i;
+
+	printf("brc: %d, where: %d, value: %d\n", brc, where, value);
+	for (i=0; i<81; i++) {
+		if ((i_to_brc(brc, i) == where)
+		    && (field[i].value == 0)
+		    && (field[i].possible & vtom(value))
+		    ) {
+			field[i].value = value;
+			field[i].possible = 0x0;
+			field[i].left = 0;
+		}
+	}
+}
+
+void fill_brc(int brc, int where, int value)
+{
+	int i;
+
+	/* load the appropriate struct single */
+	extern struct single block[9];
+	extern struct single row[9];
+	extern struct single col[9];
+
+	/* Remove the possibility of value for each field in the block, row, or column */
+	for (i=0; i<81; i++) {
+		if ((i_to_brc(brc, i) == where)
+		    && (field[i].value == 0) 
+		    && (field[i].possible & vtom(value))
+		    ) {
+			field[i].possible &= ~vtom(value);
+			field[i].left--;
+		}
+	}
+			
+	/* set filled for this value */
+	switch(brc) {
+	case BLOCK:
+		block[where].filled |= vtom(value);
+		break;
+	case ROW:
+		row[where].filled |= vtom(value);
+		break;
+	case COL:
+		col[where].filled |= vtom(value);
+		break;
+	}
+}
+
 int vtom(int value)
 {
 	switch(value) {
@@ -146,72 +213,6 @@ int mtov(int mask)
 	}
 }
 
-int check_num(int brc, int where, int mask)
-{
-	int i;
-	int num=0;
-
-	for (i=0; i<81; i++) {
-		if ( (i_to_brc(brc, i) == where)
-		     && (field[i].value == 0)
-		     && (field[i].possible & mask)
-		     ) {
-			num++;
-		}
-	}
-	return(num);
-}
-
-void set_num(int brc, int where, int value)
-{
-	int i;
-
-	printf("brc: %d, where: %d, value: %d\n", brc, where, value);
-	for (i=0; i<81; i++) {
-		if ((i_to_brc(brc, i) == where)
-		    && (field[i].value == 0)
-		    && (field[i].possible & vtom(value))
-		    ) {
-			field[i].value = value;
-			field[i].possible = 0x0;
-			field[i].left = 0;
-		}
-	}
-}
-
-void fill_brc(int brc, int where, int value)
-{
-	int i;
-
-	/* load the appropriate struct single */
-	extern struct single block[9];
-	extern struct single row[9];
-	extern struct single col[9];
-
-	/* Remove the possibility of value for each field in the block, row, or column */
-	for (i=0; i<81; i++) {
-		if ((i_to_brc(brc, i) == where)
-		    && (field[i].value == 0) 
-		    && (field[i].possible & vtom(value))
-		    ) {
-			field[i].possible &= ~vtom(value);
-			field[i].left--;
-		}
-	}
-			
-	/* set filled for this value */
-	switch(brc) {
-	case BLOCK:
-		block[where].filled |= vtom(value);
-		break;
-	case ROW:
-		row[where].filled |= vtom(value);
-		break;
-	case COL:
-		col[where].filled |= vtom(value);
-		break;
-	}
-}
 
 /* is the number still a possibility? */
 int get_value(int possib)

@@ -24,17 +24,17 @@ void fill_all(void);
    from 0 to 9 */
 int i_to_brc(int, int );
 
-/* value to mask
-   mask to value */
-int vtom(int );
-int mtov(int );
-
 int check_num(int, int, int);
 
 void set_num(int, int, int);
 
 /* Remove the possibilities for a value from a block, row or  column */
 void fill_brc(int, int , int );
+
+/* value to mask
+   mask to value */
+int vtom(int );
+int mtov(int );
 
 /* convert a possibilities field to a single value */
 int get_value(int );
