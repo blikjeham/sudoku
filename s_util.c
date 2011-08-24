@@ -2,12 +2,36 @@
 #include "s_util.h"
 #include "const.h"
 
-int readfield(FILE fd)
+extern struct single row[9];
+extern struct single col[9];
+extern struct single block[9];
+
+void printfield(void)
+{
+	int i;
+	printf("+-------+-------+-------+\n| ");
+	for (i=0; i<81; i++) {
+		printf("%d ", field[i].value);
+		if ((i % 81) != 80) {
+			if ((i % 3) == 2)
+				printf("| ");
+			if ((i % 9) == 8)
+				printf("\n| ");
+		} else {
+			printf("|\n");
+		}
+	       
+	}
+	printf("+-------+-------+-------+\n");
+}
+
+int readfield(FILE *fd)
 {
 	int i;
 	extern struct square field[81];
+
 	for (i=0; i<81; i++) {
-		field[i].value = atoi(fgetc(fd));
+		field[i].value = (fgetc(fd) & ~0x30);
 	}
 	return(0);
 }
@@ -16,18 +40,18 @@ void fill_all(void)
 {
 	int i;
 	for (i=0; i<81; i++) {
-	  if (field[i].value == 0) {
+		if (field[i].value == 0) {
 			field[i].possible = ALL;
 			field[i].left = 9;
-	  }
+		}
 	}
 	for (i=0; i<9; i++) {
-	  row[i].filled = 0;
-	  row[i].notfilled = ALL;
-	  col[i].filled = 0;
-	  col[i].notfilled = ALL;
-	  block[i].filled = 0;
-	  block[i].notfilled = ALL;
+		row[i].filled = 0;
+		row[i].notfilled = ALL;
+		col[i].filled = 0;
+		col[i].notfilled = ALL;
+		block[i].filled = 0;
+		block[i].notfilled = ALL;
 	}
 }
 
@@ -129,7 +153,7 @@ void fill_block(int blocknum, int value)
 		    && (field[i].value == 0) 
 		    && (field[i].possible & vtom(value))
 		    ) {
-			field[i].possible ~= vtom(value);
+			field[i].possible &= ~vtom(value);
 			field[i].left--;
 		}
 	}
@@ -148,7 +172,7 @@ void fill_row(int rownum, int value)
 		    && (field[i].value == 0)
 		    && (field[i].possible & vtom(value))
 		    ) {
-			field[i].possible ~= vtom(value);
+			field[i].possible & ~vtom(value);
 			field[i].left--;
 		}
 	}
@@ -167,7 +191,7 @@ void fill_col(int colnum, int value)
 		    && (field[i].value == 0)
 		    && (field[i].possible & vtom(value))
 		    ) {
-			field[i].possible ~= vtom(value);
+			field[i].possible & ~vtom(value);
 			field[i].left--;
 		}
 	}

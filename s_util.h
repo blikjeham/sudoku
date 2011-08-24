@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 /* read the values from a file */
-int readfield(FILE );
+int readfield(FILE *);
 
 /* fill all empty fields with all possibilities
    We will remove these possibilities one by one

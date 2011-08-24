@@ -39,13 +39,13 @@ int get_left(void)
 int main(int argc, char **argv)
 {
 	FILE *fd;
-	int left;
+	int left=81;
 
 	if (!(fd = fopen("fields.sud", "r"))) {
 		printf("error opening file\n");
 		exit(1);
 	}
-	if(readfield(*fd)) {
+	if(readfield(fd)) {
 		printf("error reading field\n");
 		exit(1);
 	}
@@ -54,8 +54,10 @@ int main(int argc, char **argv)
 
 	/* main loop */
 	while (left > 0) {
+		printfield();
 		check_filled();
 		left = get_left();
+		printf("left: %d\n", left);
 	}
 	
 	return(0);
