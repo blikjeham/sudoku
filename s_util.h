@@ -22,19 +22,19 @@ void fill_all(void);
 /* these functions will convert a number
    between 0 and 81 to a block, row, or column ranging
    from 0 to 9 */
-int i_to_block(int );
-int i_to_row(int );
-int i_to_col(int );
+int i_to_brc(int, int );
 
 /* value to mask
    mask to value */
 int vtom(int );
 int mtov(int );
 
+int check_num(int, int, int);
+
+void set_num(int, int, int);
+
 /* Remove the possibilities for a value from a block, row or  column */
-void fill_block(int , int );
-void fill_row(int , int );
-void fill_col(int , int );
+void fill_brc(int, int , int );
 
 /* convert a possibilities field to a single value */
 int get_value(int );

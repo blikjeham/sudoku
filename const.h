@@ -17,6 +17,10 @@
 #define NINE  0x100
 #define ALL   0x1ff
 
+#define BLOCK 1
+#define ROW 2
+#define COL 3
+
 struct square {
 	int value;
 	int possible;
