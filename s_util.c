@@ -11,7 +11,10 @@ void printfield(void)
 	int i;
 	printf("+-------+-------+-------+\n| ");
 	for (i=0; i<81; i++) {
-		printf("%03d ", field[i].possible);
+		if (field[i].value == 0)
+			printf(". ");
+		else
+			printf("%d ", field[i].value);
 		if ((i % 81) != 80) {
 			if ((i % 3) == 2)
 				printf("| ");

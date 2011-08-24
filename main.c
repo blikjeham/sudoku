@@ -15,11 +15,8 @@ void check_filled(void)
 	for (i=0; i<81; i++) {
 		if (field[i].value > 0) {
 			fill_block(i_to_block(i), field[i].value);
-			printfield();
 			fill_row(i_to_row(i), field[i].value);
-			printfield();
 			fill_col(i_to_col(i), field[i].value);
-			printfield();
 		} else {
 			if (field[i].left == 1) {
 				field[i].value = mtov(field[i].possible);
@@ -42,7 +39,8 @@ int get_left(void)
 int main(int argc, char **argv)
 {
 	FILE *fd;
-	int left=81;
+	int left = 81;
+	int previousleft = 81;
 
 	if (!(fd = fopen("fields.sud", "r"))) {
 		printf("error opening file\n");
@@ -57,11 +55,17 @@ int main(int argc, char **argv)
 	printfield();
 	/* main loop */
 	while (left > 0) {
-		//		printfield();
+		printfield();
 		check_filled();
 		left = get_left();
 		printf("left: %d\n", left);
+		if (left != previousleft) {
+			previousleft = left;
+		} else {
+			printf("unsolvable?\n");
+			exit(1);
+		}
 	}
-	
+	printfield();
 	return(0);
 }

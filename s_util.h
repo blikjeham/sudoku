@@ -8,6 +8,9 @@
 
 #include <stdio.h>
 
+/* print the field so far */
+void printfield(void);
+
 /* read the values from a file */
 int readfield(FILE *);
 
