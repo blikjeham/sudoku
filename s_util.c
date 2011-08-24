@@ -11,7 +11,7 @@ void printfield(void)
 	int i;
 	printf("+-------+-------+-------+\n| ");
 	for (i=0; i<81; i++) {
-		printf("%d ", field[i].value);
+		printf("%03d ", field[i].possible);
 		if ((i % 81) != 80) {
 			if ((i % 3) == 2)
 				printf("| ");
@@ -172,7 +172,7 @@ void fill_row(int rownum, int value)
 		    && (field[i].value == 0)
 		    && (field[i].possible & vtom(value))
 		    ) {
-			field[i].possible & ~vtom(value);
+			field[i].possible &= ~vtom(value);
 			field[i].left--;
 		}
 	}
@@ -191,7 +191,7 @@ void fill_col(int colnum, int value)
 		    && (field[i].value == 0)
 		    && (field[i].possible & vtom(value))
 		    ) {
-			field[i].possible & ~vtom(value);
+			field[i].possible &= ~vtom(value);
 			field[i].left--;
 		}
 	}

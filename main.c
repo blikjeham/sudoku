@@ -15,8 +15,11 @@ void check_filled(void)
 	for (i=0; i<81; i++) {
 		if (field[i].value > 0) {
 			fill_block(i_to_block(i), field[i].value);
+			printfield();
 			fill_row(i_to_row(i), field[i].value);
+			printfield();
 			fill_col(i_to_col(i), field[i].value);
+			printfield();
 		} else {
 			if (field[i].left == 1) {
 				field[i].value = mtov(field[i].possible);
@@ -49,12 +52,12 @@ int main(int argc, char **argv)
 		printf("error reading field\n");
 		exit(1);
 	}
-	
+	printfield();
 	fill_all();
-
+	printfield();
 	/* main loop */
 	while (left > 0) {
-		printfield();
+		//		printfield();
 		check_filled();
 		left = get_left();
 		printf("left: %d\n", left);
