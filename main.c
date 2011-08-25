@@ -47,6 +47,19 @@ void check_single(void)
 	}
 }
 
+void check_double(void)
+{
+	int num;
+	int i,j;
+	for (num=1; num<10; num++) {
+		for (i=0; i<9; i++) {
+			if (check_num(BLOCK, i, vtom(num)) == 2) {
+				
+			}
+		}
+	}
+}
+
 int get_left(void)
 {
 	int i;
