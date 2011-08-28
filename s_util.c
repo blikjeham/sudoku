@@ -6,16 +6,23 @@ extern struct single row[9];
 extern struct single col[9];
 extern struct single block[9];
 
-void printfield(void)
+void printfield(int possible)
 {
 	int i;
 	printf("   0 1 2   3 4 5   6 7 8\n");
 	printf(" +-------+-------+-------+\n0| ");
 	for (i=0; i<81; i++) {
-		if (field[i].value == 0)
-			printf(". ");
-		else
-			printf("%d ", field[i].value);
+		if (field[i].value == 0) {
+			if (possible)
+				printf("%03d ", field[i].possible);
+			else
+				printf(". ");
+		} else {
+			if (possible)
+				printf(".%d. ", field[i].value);
+			else
+				printf("%d ", field[i].value);
+		}
 		if ((i % 81) != 80) {
 			if ((i % 3) == 2)
 				printf("| ");
@@ -29,6 +36,12 @@ void printfield(void)
 	       
 	}
 	printf(" +-------+-------+-------+\n\n");
+	if (possible) {
+		for (i=1; i<10; i++) {
+			printf("%d=%d; ", i, vtom(i));
+		}
+		printf("\n");
+	}
 }
 
 int readfield(FILE *fd)
@@ -46,6 +59,9 @@ void fill_all(void)
 {
 	int i;
 	for (i=0; i<81; i++) {
+		field[i].block = i_to_brc(BLOCK, i);
+		field[i].row = i_to_brc(ROW, i);
+		field[i].col = i_to_brc(COL, i);
 		if (field[i].value == 0) {
 			field[i].possible = ALL;
 			field[i].left = 9;
@@ -74,6 +90,42 @@ int i_to_brc(int brc, int where)
 		return(where % 9);
 	}
 	return(0);
+}
+
+int check_num_tripple(int brc, int *x_brc, int where, int mask)
+{
+	int i;
+	int num=0;
+	for (i=0; i<81; i++) {
+		if ( (brc == BLOCK)
+		     && (i_to_brc(BLOCK, i) == where)
+		     && (field[i].value == 0)
+		     && (field[i].possible & mask)
+		     ) {
+			num++;
+			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
+			x_brc[COL] |= vtom(i_to_brc(COL, i)+1);
+		}
+		if ( (brc == ROW)
+		     && (i_to_brc(ROW, i) == where)
+		     && (field[i].value == 0)
+		     && (field[i].possible & mask)
+		     ) {
+			num++;
+			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
+			x_brc[COL] |= vtom(i_to_brc(COL, i)+1);
+		}
+		if ( (brc == COL)
+		     && (i_to_brc(COL, i) == where)
+		     && (field[i].value == 0)
+		     && (field[i].possible & mask)
+		     ) {
+			num++;
+			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
+			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
+		}
+	}
+	return(num);
 }
 
 int check_num(int brc, int where, int mask)
@@ -105,6 +157,55 @@ void set_num(int brc, int where, int value)
 			field[i].value = value;
 			field[i].possible = 0x0;
 			field[i].left = 0;
+		}
+	}
+}
+
+void fill_brc_ex(int brc, int where, int *excl, int value)
+{
+	int i;
+	extern struct single block[9];
+	extern struct single row[9];
+	extern struct single col[9];
+
+	for (i=0; i<81; i++) {
+		if (brc == BLOCK) {
+			if ( (!(i_to_brc(BLOCK, i) == where))
+			     && ((excl[ROW]) & (vtom(i_to_brc(ROW, i)+1))
+				 || (excl[COL]) & (vtom(i_to_brc(COL, i)+1)))
+			     && (field[i].value == 0)
+			     && (field[i].possible & value)
+			     ) {
+				printf("brc: %d, where: %d; excl[BLOCK]: %d, excl[ROW]: %d, excl[COL]: %d, value: %d\n",
+				       brc, where, excl[BLOCK], excl[ROW], excl[COL], mtov(value));
+				field[i].possible &= ~(value);
+				field[i].left--;
+			}
+		} else if (brc == ROW) {
+			if ( (!(i_to_brc(ROW, i) == where))
+			     && ((excl[BLOCK]) & (vtom(i_to_brc(BLOCK, i)+1))
+				 || (excl[COL]) & (vtom(i_to_brc(COL, i)+1)))
+			     && (field[i].value == 0)
+			     && (field[i].possible & value)
+			     ) {
+				printf("brc: %d, where: %d; excl[BLOCK]: %d, excl[ROW]: %d, excl[COL]: %d, value: %d\n",
+				       brc, where, excl[BLOCK], excl[ROW], excl[COL], mtov(value));
+				field[i].possible &= ~(value);
+				field[i].left--;
+			}
+		} else if (brc == COL) {
+			if ( (!(i_to_brc(COL, i) == where))
+			     && ((excl[BLOCK]) & (vtom(i_to_brc(BLOCK, i)+1))
+				 || (excl[ROW]) & (vtom(i_to_brc(ROW, i)+1)))
+			     && (field[i].value == 0)
+			     && (field[i].possible & value)
+			     ) {
+				printf("brc: %d, where: %d; excl[BLOCK]: %d, excl[ROW]: %d, excl[COL]: %d, value: %d\n",
+				       brc, where, excl[BLOCK], excl[ROW], excl[COL], mtov(value));
+
+				field[i].possible &= ~(value);
+				field[i].left--;
+			}
 		}
 	}
 }

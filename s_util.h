@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 /* print the field so far */
-void printfield(void);
+void printfield(int );
 
 /* read the values from a file */
 int readfield(FILE *);
@@ -23,6 +23,8 @@ void fill_all(void);
    between 0 and 81 to a block, row, or column ranging
    from 0 to 9 */
 int i_to_brc(int, int );
+
+int check_num_tripple(int, int *, int, int);
 
 int check_num(int, int, int);
 
