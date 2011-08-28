@@ -17,19 +17,22 @@
 #define NINE  0x100
 #define ALL   0x1ff
 
-#define BLOCK 1
-#define ROW 2
-#define COL 3
+#define BLOCK 0
+#define ROW 1
+#define COL 2
 
 struct square {
 	int value;
 	int possible;
 	int left;
+	int block;
+	int row;
+	int col;
 } field[81];
 
 struct single {
 	int filled;
-  int notfilled;
+	int notfilled;
 };
 
 #endif /* CONST_H */
