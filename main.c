@@ -37,18 +37,19 @@ int main(int argc, char **argv)
 		check_single();
 		check_filled();
 		printfield(1);
-		
+
 		left = get_left();
 		printf("left: %d\n", left);
-		if (left < previousleft) {
+		if (left != previousleft) {
 			previousleft = left;
 			count=0;
 		} else {
-			if (count == 0)
+			if (count == 0) 
 				check_only();
-			if (count >= 1)
+			if (count == 1)
 				check_double();
-			if (count == 3 && left > 0){
+
+			if (count == 2 && left > 0){
 				printf("unsolvable?\n");
 				printfield(0);
 				printfield(1);
