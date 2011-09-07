@@ -1,10 +1,87 @@
 #include <stdlib.h>
+#include <strings.h>
 #include "s_util.h"
 #include "const.h"
 
 extern struct single row[9];
 extern struct single col[9];
 extern struct single block[9];
+
+void check_filled(void)
+{
+	int i;
+	int brc;
+
+	for (i=0; i<81; i++) {
+		if (field[i].value > 0) {
+			for (brc=0; brc<3; brc++) {
+				fill_brc(brc, i_to_brc(brc, i), field[i].value);
+			}
+		}
+	}
+}
+
+void check_only(void)
+{
+	int i;
+
+	for (i=0; i<81; i++) {
+		if ((field[i].value == 0) && (field[i].left == 1)) {
+			field[i].value = mtov(field[i].possible);
+			field[i].left = 0;
+			field[i].possible = 0;
+			check_filled();
+		}
+	}
+}
+
+void check_single(void)
+{
+	int i,num;
+	int brc;
+
+	for (num=1; num<10; num++) {
+		for (i=0; i<9; i++) {
+			for (brc=0; brc<3; brc++) {
+				if (check_num(brc, i, vtom(num)) == 1) {
+					set_num(brc, i, num);
+				}
+			}
+		}
+	}
+}
+
+void check_double(void)
+{
+	int num;
+	int i;
+	int a_brc[3] = {0, 0, 0};
+
+	for (num=1; num<10; num++) {
+		for (i=0; i<9; i++) {
+			bzero(a_brc, sizeof(int)*3);
+			if (check_num_tripple(BLOCK, a_brc, i, vtom(num)) == 2) {
+				fill_brc_ex(BLOCK, i, a_brc, vtom(num));
+			}
+			if (check_num_tripple(ROW, a_brc, i, vtom(num)) == 2) {
+				fill_brc_ex(ROW, i, a_brc, vtom(num));
+			}
+			if (check_num_tripple(COL, a_brc, i, vtom(num)) == 2) {
+				fill_brc_ex(COL, i, a_brc, vtom(num));
+			}
+		}
+	}
+}
+
+int get_left(void)
+{
+	int i;
+	int left=0;
+	for (i=0; i<81; i++) {
+		left += field[i].left;
+	}
+	return(left);
+}
 
 void printfield(int possible)
 {
@@ -125,6 +202,7 @@ int check_num_tripple(int brc, int *x_brc, int where, int mask)
 			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
 		}
 	}
+
 	return(num);
 }
 
@@ -148,15 +226,17 @@ void set_num(int brc, int where, int value)
 {
 	int i;
 
-	printf("brc: %d, where: %d, value: %d\n", brc, where, value);
 	for (i=0; i<81; i++) {
 		if ((i_to_brc(brc, i) == where)
 		    && (field[i].value == 0)
 		    && (field[i].possible & vtom(value))
 		    ) {
 			field[i].value = value;
-			field[i].possible = 0x0;
+			field[i].possible = 0;
 			field[i].left = 0;
+			
+			/* Check again for the impossibilities */
+			check_filled();
 		}
 	}
 }
@@ -170,41 +250,37 @@ void fill_brc_ex(int brc, int where, int *excl, int value)
 
 	for (i=0; i<81; i++) {
 		if (brc == BLOCK) {
-			if ( (!(i_to_brc(BLOCK, i) == where))
-			     && ((excl[ROW]) & (vtom(i_to_brc(ROW, i)+1))
-				 || (excl[COL]) & (vtom(i_to_brc(COL, i)+1)))
+			if ( (i_to_brc(BLOCK, i) != where)
+			     && ((excl[ROW]) == (vtom(i_to_brc(ROW, i)+1))
+				 || (excl[COL]) == (vtom(i_to_brc(COL, i)+1)))
 			     && (field[i].value == 0)
 			     && (field[i].possible & value)
 			     ) {
-				printf("brc: %d, where: %d; excl[BLOCK]: %d, excl[ROW]: %d, excl[COL]: %d, value: %d\n",
-				       brc, where, excl[BLOCK], excl[ROW], excl[COL], mtov(value));
 				field[i].possible &= ~(value);
 				field[i].left--;
+				printfield(1);
 			}
 		} else if (brc == ROW) {
-			if ( (!(i_to_brc(ROW, i) == where))
-			     && ((excl[BLOCK]) & (vtom(i_to_brc(BLOCK, i)+1))
-				 || (excl[COL]) & (vtom(i_to_brc(COL, i)+1)))
+			if ( (i_to_brc(ROW, i) != where)
+			     && ((excl[BLOCK]) == (vtom(i_to_brc(BLOCK, i)+1))
+				 || (excl[COL]) == (vtom(i_to_brc(COL, i)+1)))
 			     && (field[i].value == 0)
 			     && (field[i].possible & value)
 			     ) {
-				printf("brc: %d, where: %d; excl[BLOCK]: %d, excl[ROW]: %d, excl[COL]: %d, value: %d\n",
-				       brc, where, excl[BLOCK], excl[ROW], excl[COL], mtov(value));
 				field[i].possible &= ~(value);
 				field[i].left--;
+				printfield(1);
 			}
 		} else if (brc == COL) {
-			if ( (!(i_to_brc(COL, i) == where))
-			     && ((excl[BLOCK]) & (vtom(i_to_brc(BLOCK, i)+1))
-				 || (excl[ROW]) & (vtom(i_to_brc(ROW, i)+1)))
+			if ( (i_to_brc(COL, i) != where)
+			     && ((excl[BLOCK]) == (vtom(i_to_brc(BLOCK, i)+1))
+				 || (excl[ROW]) == (vtom(i_to_brc(ROW, i)+1)))
 			     && (field[i].value == 0)
 			     && (field[i].possible & value)
 			     ) {
-				printf("brc: %d, where: %d; excl[BLOCK]: %d, excl[ROW]: %d, excl[COL]: %d, value: %d\n",
-				       brc, where, excl[BLOCK], excl[ROW], excl[COL], mtov(value));
-
 				field[i].possible &= ~(value);
 				field[i].left--;
+				printfield(1);
 			}
 		}
 	}

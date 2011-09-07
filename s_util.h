@@ -8,6 +8,21 @@
 
 #include <stdio.h>
 
+/* check for impossibilities */
+void check_filled(void);
+
+/* check for only possibility */
+void check_only(void);
+
+/* check for single value in BRC */
+void check_single(void);
+
+/* check for double value in BRC */
+void check_double(void);
+
+/* get the number of values left */
+int get_left(void);
+
 /* print the field so far */
 void printfield(int );
 
@@ -32,6 +47,8 @@ void set_num(int, int, int);
 
 /* Remove the possibilities for a value from a block, row or  column */
 void fill_brc(int, int , int );
+
+void fill_brc_ex(int , int , int *, int );
 
 /* value to mask
    mask to value */
