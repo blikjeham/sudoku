@@ -7,3 +7,4 @@ clean: sudoku
 
 sudoku: main.c s_util.c
 	gcc $(CFLAGS) -o sudoku main.c s_util.c
+
