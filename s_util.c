@@ -60,13 +60,13 @@ void check_double(void)
 	for (num=1; num<10; num++) {
 		for (i=0; i<9; i++) {
 			bzero(a_brc, sizeof(int)*3);
-			if (check_num_tripple(BLOCK, a_brc, i, vtom(num)) == 2) {
+			if (check_num_brc(BLOCK, a_brc, i, vtom(num)) == 2) {
 				fill_brc_ex(BLOCK, i, a_brc, vtom(num));
 			}
-			if (check_num_tripple(ROW, a_brc, i, vtom(num)) == 2) {
+			if (check_num_brc(ROW, a_brc, i, vtom(num)) == 2) {
 				fill_brc_ex(ROW, i, a_brc, vtom(num));
 			}
-			if (check_num_tripple(COL, a_brc, i, vtom(num)) == 2) {
+			if (check_num_brc(COL, a_brc, i, vtom(num)) == 2) {
 				fill_brc_ex(COL, i, a_brc, vtom(num));
 			}
 		}
@@ -169,7 +169,7 @@ int i_to_brc(int brc, int where)
 	return(0);
 }
 
-int check_num_tripple(int brc, int *x_brc, int where, int mask)
+int check_num_brc(int brc, int *x_brc, int where, int mask)
 {
 	int i;
 	int num=0;

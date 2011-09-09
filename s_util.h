@@ -39,7 +39,7 @@ void fill_all(void);
    from 0 to 9 */
 int i_to_brc(int, int );
 
-int check_num_tripple(int, int *, int, int);
+int check_num_brc(int, int *, int, int);
 
 int check_num(int, int, int);
 
