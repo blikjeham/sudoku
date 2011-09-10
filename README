@@ -4,3 +4,19 @@ The goal for this program is to see if I could build a sudoku solver. If I can s
 
 I try to make the program as simple as possible, yet as smart as possible.
 Later on I will make additions to it. Build in more and more algorithms for solving the sudoku.
+
+SOLVING:
+How do we solve a sudoku?
+There are a lot of different possibilities for solving, but here are the steps this program takes:
+1) read the field from 'fields.sud'
+2) set all possibilities where there is no value to ALL (0x1FF)
+3) everewhere there is a value: remove the value from the possibilities in the same block, row, and column (we call that BRC).
+4) if there is only one possibility left in a cell, set the value to that possibility.
+5) repeat step 3 and 4 until no possibilities are removed
+6) check for a single possibility within a BRC.
+7) repeat steps 3 to 6
+8) check for twice the same possibility within a BRC. Remove the possibility from the other BRC's.
+9) repeat steps 3 to 8
+10) check for n times the same n possibilities within a BRC. For example twice a 1 and 2 in the same row means that neither 1 or 2 may occur in the same row apart from where they were found.
+11) repeat steps 3 to 10
+12) if no solution is found, give up.
