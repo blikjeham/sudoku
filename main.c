@@ -33,6 +33,7 @@ int main(int argc, char **argv)
 
 	/* main loop */
 	while (left > 0) {
+		check_filled();
 		printfield(0);
 		check_single();
 		check_filled();
@@ -48,8 +49,10 @@ int main(int argc, char **argv)
 				check_only();
 			if (count == 1)
 				check_double();
+			if (count == 2)
+				check_double_value();
 
-			if (count == 2 && left > 0){
+			if (count == 3 && left > 0){
 				printf("unsolvable?\n");
 				printfield(0);
 				printfield(1);

@@ -17,8 +17,11 @@ void check_only(void);
 /* check for single value in BRC */
 void check_single(void);
 
-/* check for double value in BRC */
+/* check for double possibilities in BRC */
 void check_double(void);
+
+/* check for double value possibilities in BRC */
+void check_double_value(void);
 
 /* get the number of values left */
 int get_left(void);
@@ -49,6 +52,11 @@ void set_num(int, int, int);
 void fill_brc(int, int , int );
 
 void fill_brc_ex(int , int , int *, int );
+
+void fill_brc_double(int , int , int *, int );
+
+/* convert mask to number of possibilities */
+int mtop(int );
 
 /* value to mask
    mask to value */

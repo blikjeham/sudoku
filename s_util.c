@@ -73,6 +73,29 @@ void check_double(void)
 	}
 }
 
+void check_double_value(void)
+{
+	int i;
+	int mask;
+	int a_brc[3] = {0, 0, 0};
+
+	for (mask=ONE; mask<=ALL; mask++) {
+		for (i=0; i<9; i++) {
+			bzero(a_brc, sizeof(int)*3);
+			if (check_num_brc(BLOCK, a_brc, i, mask) == mtop(mask)) {
+				fill_brc_double(BLOCK, i, a_brc, mask);
+			}
+			if (check_num_brc(ROW, a_brc, i, mask) == mtop(mask)) {
+				fill_brc_double(ROW, i, a_brc, mask);
+			}
+			if (check_num_brc(ROW, a_brc, i, mask) == mtop(mask)) {
+				fill_brc_double(ROW, i, a_brc, mask);
+			}
+		}
+		check_single();
+	}
+}
+
 int get_left(void)
 {
 	int i;
@@ -177,7 +200,7 @@ int check_num_brc(int brc, int *x_brc, int where, int mask)
 		if ( (brc == BLOCK)
 		     && (i_to_brc(BLOCK, i) == where)
 		     && (field[i].value == 0)
-		     && (field[i].possible & mask)
+		     && ((field[i].possible & mask) == mask)
 		     ) {
 			num++;
 			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
@@ -186,7 +209,7 @@ int check_num_brc(int brc, int *x_brc, int where, int mask)
 		if ( (brc == ROW)
 		     && (i_to_brc(ROW, i) == where)
 		     && (field[i].value == 0)
-		     && (field[i].possible & mask)
+		     && ((field[i].possible & mask) == mask)
 		     ) {
 			num++;
 			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
@@ -195,7 +218,7 @@ int check_num_brc(int brc, int *x_brc, int where, int mask)
 		if ( (brc == COL)
 		     && (i_to_brc(COL, i) == where)
 		     && (field[i].value == 0)
-		     && (field[i].possible & mask)
+		     && ((field[i].possible & mask) == mask)
 		     ) {
 			num++;
 			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
@@ -258,7 +281,6 @@ void fill_brc_ex(int brc, int where, int *excl, int value)
 			     ) {
 				field[i].possible &= ~(value);
 				field[i].left--;
-				printfield(1);
 			}
 		} else if (brc == ROW) {
 			if ( (i_to_brc(ROW, i) != where)
@@ -269,7 +291,6 @@ void fill_brc_ex(int brc, int where, int *excl, int value)
 			     ) {
 				field[i].possible &= ~(value);
 				field[i].left--;
-				printfield(1);
 			}
 		} else if (brc == COL) {
 			if ( (i_to_brc(COL, i) != where)
@@ -280,7 +301,53 @@ void fill_brc_ex(int brc, int where, int *excl, int value)
 			     ) {
 				field[i].possible &= ~(value);
 				field[i].left--;
-				printfield(1);
+			}
+		}
+	}
+}
+
+void fill_brc_double(int brc, int where, int *excl, int value)
+{
+	int i;
+	int removed;
+	extern struct single block[9];
+	extern struct single row[9];
+	extern struct single col[9];
+
+	for (i=0; i<81; i++) {
+		removed=0;
+		if (brc == BLOCK) {
+			if ( (i_to_brc(BLOCK, i) == where)
+			     && (!((excl[ROW]) & (vtom(i_to_brc(ROW, i)+1)))
+				 || (!((excl[COL]) & (vtom(i_to_brc(COL, i)+1)))))
+			     && (field[i].value == 0)
+			     && (field[i].possible & value)
+			     ) {
+				removed = field[i].possible & value;
+				field[i].possible &= ~(value);
+				field[i].left = field[i].left - mtop(removed);
+			}
+		} else if (brc == ROW) {
+			if ( (i_to_brc(ROW, i) == where)
+			     && (!((excl[BLOCK]) & (vtom(i_to_brc(BLOCK, i)+1)))
+				 || (!((excl[COL]) & (vtom(i_to_brc(COL, i)+1)))))
+			     && (field[i].value == 0)
+			     && (field[i].possible & value)
+			     ) {
+				removed = field[i].possible & value;
+				field[i].possible &= ~(value);
+				field[i].left = field[i].left - mtop(removed);
+			}
+		} else if (brc == COL) {
+			if ( (i_to_brc(COL, i) == where)
+			     && (!((excl[BLOCK]) & (vtom(i_to_brc(BLOCK, i)+1)))
+				 || (!((excl[ROW]) & (vtom(i_to_brc(ROW, i)+1)))))
+			     && (field[i].value == 0)
+			     && (field[i].possible & value)
+			     ) {
+				removed = field[i].possible & value;
+				field[i].possible &= ~(value);
+				field[i].left = field[i].left - mtop(removed);
 			}
 		}
 	}
@@ -318,6 +385,17 @@ void fill_brc(int brc, int where, int value)
 		col[where].filled |= vtom(value);
 		break;
 	}
+}
+
+int mtop(int mask)
+{
+	int i;
+	int count=0;
+	for (i=1; i<10; i++) {
+		if (mask & vtom(i))
+			count++;
+	}
+	return count;
 }
 
 int vtom(int value)
