@@ -1,4 +1,5 @@
 sudoku
 sudoku.exe
+*.o
 test.c*
 test
