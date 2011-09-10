@@ -109,8 +109,14 @@ int get_left(void)
 void printfield(int possible)
 {
 	int i;
-	printf("   0 1 2   3 4 5   6 7 8\n");
-	printf(" +-------+-------+-------+\n0| ");
+	if (possible) {
+		printf("    0   1   2     3   4   5     6   7   8\n");
+		printf(" +-------------+-------------+-------------+\n0| ");
+	}
+	else {
+		printf("   0 1 2   3 4 5   6 7 8\n");
+		printf(" +-------+-------+-------+\n0| ");
+	}
 	for (i=0; i<81; i++) {
 		if (field[i].value == 0) {
 			if (possible)
@@ -126,8 +132,12 @@ void printfield(int possible)
 		if ((i % 81) != 80) {
 			if ((i % 3) == 2)
 				printf("| ");
-			if ((i % 27) == 26)
-				printf("\n +-------+-------+-------+");
+			if ((i % 27) == 26) {
+				if (possible)
+					printf("\n +-------------+-------------+-------------+");
+				else
+					printf("\n +-------+-------+-------+");
+			}
 			if ((i % 9) == 8)
 				printf("\n%d| ", (i/9)+1);
 		} else {
@@ -135,7 +145,10 @@ void printfield(int possible)
 		}
 	       
 	}
-	printf(" +-------+-------+-------+\n\n");
+	if (possible)
+		printf(" +-------------+-------------+-------------+\n\n");
+	else
+		printf(" +-------+-------+-------+\n\n");
 	if (possible) {
 		for (i=1; i<10; i++) {
 			printf("%d=%d; ", i, vtom(i));
