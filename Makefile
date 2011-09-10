@@ -1,13 +1,36 @@
-CFLAGS += -ggdb 
-CFLAGS += -Wall
+SHELL = /bin/sh
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+
+DEBUG = -ggdb
+CFLAGS = -Wall -c $(DEBUG)
+LFLAGS = -Wall $(DEBUG)
+
+INSTALL = /usr/bin/install
+INSTALL_PROGRAM = ${INSTALL}
+INSTALL_DATA = ${INSTALL} -m 644
+
+DEPS = s_util.h const.h
+OBJ = main.o s_util.o
+
+TEST_OBJ = test.o s_util.o
+
+%.o: %.c $(DEPS)
+	$(CC) $(CFLAGS) -o $@ $<
+
 all: sudoku
 
-clean: sudoku
-	rm sudoku
+sudoku: $(OBJ)
+	 $(CC) $(LFLAGS) -o $@ $^
 
-sudoku: main.c s_util.c
-	gcc $(CFLAGS) -o sudoku main.c s_util.c
+# make test is just for debugging purposes
+# since test.c usually only contains some
+# test stuff
+test: $(TEST_OBJ)
+	$(CC) $(LFLAGS) -o $@ $^
 
+.PHONY: clean
 
-test: test.c s_util.c
-	gcc $(CFLAGS) -o test test.c s_util.c
+clean:
+	\rm -f *.o *~ sudoku test
