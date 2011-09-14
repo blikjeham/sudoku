@@ -34,7 +34,6 @@ int main(int argc, char **argv)
 	/* main loop */
 	while (left > 0) {
 		check_filled();
-		printfield(0);
 		check_single();
 		check_filled();
 		printfield(1);
@@ -54,7 +53,6 @@ int main(int argc, char **argv)
 
 			if (count == 3 && left > 0){
 				printf("unsolvable?\n");
-				printfield(0);
 				printfield(1);
 
 				/* Print the remaining array, so we can save it */
