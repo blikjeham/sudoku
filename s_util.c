@@ -1,4 +1,9 @@
+#include "config.h"
+
+#ifdef HAVE_NCURSES
 #include <ncurses.h>
+#endif /* HAVE_NCURSES */
+
 #include <stdlib.h>
 #include <strings.h>
 #include "s_util.h"
@@ -10,11 +15,15 @@ extern struct single block[9];
 
 void winprintf(WINDOW *wfield, char *fmt, ...)
 {
-	char buffer[1024];
 	va_list va;
 	va_start(va, fmt);
+#ifdef HAVE_NCURSES
+	char buffer[1024];
 	vsnprintf(buffer, 1023, fmt, va);
 	waddstr(wfield, buffer);
+#else
+	vprintf(fmt,va);
+#endif /* HAVE_NCURSES */
 	va_end(va);
 }
 

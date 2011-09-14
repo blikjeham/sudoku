@@ -1,4 +1,9 @@
+#include "config.h"
+
+#ifdef HAVE_NCURSES
 #include <ncurses.h>
+#endif /* HAVE_NCURSES */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
@@ -18,6 +23,7 @@ int main(int argc, char **argv)
 	int previousleft = 81;
 	int count=0;
 	int i;
+#ifdef HAVE_NCURSES
 	WINDOW *wfield;
 
 	/* Initialize ncurses screen */
@@ -27,6 +33,10 @@ int main(int argc, char **argv)
 	}
 
 	wfield = newwin(46,46,3,3);
+#else /* HAVE_NCURSES */
+	void *wfield = NULL;
+#endif /* HAVE_NCURSES */
+	
 	if (!(fd = fopen("fields.sud", "r"))) {
 		printf("error opening file\n");
 		exit(1);
