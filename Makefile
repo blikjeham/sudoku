@@ -4,9 +4,11 @@ SHELL = /bin/sh
 .SUFFIXES: .c .o
 
 DEBUG = -ggdb
-CFLAGS = -Wall -c $(DEBUG)
-LFLAGS = -Wall -lcurses $(DEBUG)
+CFLAGS = -Wall -O2 $(DEBUG)
+LDFLAGS = -lcurses
 
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(CFLAGS) $(LDFLAGS)
 INSTALL = /usr/bin/install
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_DATA = ${INSTALL} -m 644
@@ -17,12 +19,12 @@ OBJ = main.o s_util.o
 TEST_OBJ = test.o s_util.o
 
 %.o: %.c $(DEPS)
-	$(CC) $(CFLAGS) -o $@ $<
+	$(COMPILE) -c -o $@ $<
 
 all: sudoku
 
 sudoku: $(OBJ)
-	 $(CC) $(LFLAGS) -o $@ $^
+	 $(LINK) -o $@ $^
 
 # make test is just for debugging purposes
 # since test.c usually only contains some

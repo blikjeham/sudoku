@@ -186,10 +186,18 @@ void printfield(WINDOW *wfield, int possible)
 int readfield(FILE *fd)
 {
 	int i;
+	char number;
 	extern struct square field[81];
 
 	for (i=0; i<81; i++) {
-		field[i].value = (fgetc(fd) & ~0x30);
+		number = fgetc(fd);
+		if ((number < 0x30) || (number > 0x3a)) {
+			/* the character read is actually not a number
+			   so skip it and continue. */
+			i--;
+			continue;
+		}
+		field[i].value = (number & ~0x30);
 	}
 	return(0);
 }
