@@ -7,6 +7,10 @@
 #define S_UTIL_H 1
 
 #include <stdio.h>
+#include <ncurses.h>
+
+/* printf to a window */
+void winprintf(WINDOW *, char *, ...);
 
 /* check for impossibilities */
 void check_filled(void);
@@ -27,7 +31,7 @@ void check_double_value(void);
 int get_left(void);
 
 /* print the field so far */
-void printfield(int );
+void printfield(WINDOW *, int );
 
 /* read the values from a file */
 int readfield(FILE *);

@@ -5,7 +5,7 @@ SHELL = /bin/sh
 
 DEBUG = -ggdb
 CFLAGS = -Wall -c $(DEBUG)
-LFLAGS = -Wall $(DEBUG)
+LFLAGS = -Wall -lcurses $(DEBUG)
 
 INSTALL = /usr/bin/install
 INSTALL_PROGRAM = ${INSTALL}

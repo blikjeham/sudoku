@@ -1,3 +1,4 @@
+#include <ncurses.h>
 #include <stdlib.h>
 #include <strings.h>
 #include "s_util.h"
@@ -6,6 +7,16 @@
 extern struct single row[9];
 extern struct single col[9];
 extern struct single block[9];
+
+void winprintf(WINDOW *wfield, char *fmt, ...)
+{
+	char buffer[1024];
+	va_list va;
+	va_start(va, fmt);
+	vsnprintf(buffer, 1023, fmt, va);
+	waddstr(wfield, buffer);
+	va_end(va);
+}
 
 void check_filled(void)
 {
@@ -106,55 +117,61 @@ int get_left(void)
 	return(left);
 }
 
-void printfield(int possible)
+void printfield(WINDOW *wfield, int possible)
 {
 	int i;
+	wmove(wfield, 0,0);
+	werase(wfield);
+	wrefresh(wfield);
 	if (possible) {
-		printf("    0   1   2     3   4   5     6   7   8\n");
-		printf(" +-------------+-------------+-------------+\n0| ");
+		winprintf(wfield, "    0   1   2     3   4   5     6   7   8\n\r");
+		winprintf(wfield, " +-------------+-------------+-------------+\n\r0| ");
 	}
 	else {
-		printf("   0 1 2   3 4 5   6 7 8\n");
-		printf(" +-------+-------+-------+\n0| ");
+		winprintf(wfield, "   0 1 2   3 4 5   6 7 8\n\r");
+		winprintf(wfield, " +-------+-------+-------+\n\r0| ");
 	}
 	for (i=0; i<81; i++) {
 		if (field[i].value == 0) {
 			if (possible)
-				printf("%03d ", field[i].possible);
+				winprintf(wfield, "%03d ", field[i].possible);
 			else
-				printf(". ");
+				winprintf(wfield, ". ");
 		} else {
 			if (possible)
-				printf(".%d. ", field[i].value);
+				winprintf(wfield, ".%d. ", field[i].value);
 			else
-				printf("%d ", field[i].value);
+				winprintf(wfield, "%d ", field[i].value);
 		}
 		if ((i % 81) != 80) {
 			if ((i % 3) == 2)
-				printf("| ");
+				winprintf(wfield, "| ");
 			if ((i % 27) == 26) {
 				if (possible)
-					printf("\n +-------------+-------------+-------------+");
+					winprintf(wfield, "\n\r +-------------+-------------+-------------+");
 				else
-					printf("\n +-------+-------+-------+");
+					winprintf(wfield, "\n\r +-------+-------+-------+");
 			}
 			if ((i % 9) == 8)
-				printf("\n%d| ", (i/9)+1);
+				winprintf(wfield, "\n\r%d| ", (i/9)+1);
 		} else {
-			printf("|\n");
+			winprintf(wfield, "|\n\r");
 		}
 	       
 	}
 	if (possible)
-		printf(" +-------------+-------------+-------------+\n\n");
+		winprintf(wfield, " +-------------+-------------+-------------+\n\r\n\r");
 	else
-		printf(" +-------+-------+-------+\n\n");
+		winprintf(wfield, " +-------+-------+-------+\n\r\n\r");
 	if (possible) {
 		for (i=1; i<10; i++) {
-			printf("%d=%d; ", i, vtom(i));
+			winprintf(wfield, "%d=%d; ", i, vtom(i));
+			if (i % 5 == 0)
+				winprintf(wfield, "\n\r");
 		}
-		printf("\n");
+		winprintf(wfield, "\n\r");
 	}
+	wrefresh(wfield);
 }
 
 int readfield(FILE *fd)

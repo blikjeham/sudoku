@@ -1,3 +1,4 @@
+#include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
@@ -17,7 +18,15 @@ int main(int argc, char **argv)
 	int previousleft = 81;
 	int count=0;
 	int i;
+	WINDOW *wfield;
 
+	/* Initialize ncurses screen */
+	if (!initscr()) {
+		printf("Error initializing ncurses\n");
+		exit(1);
+	}
+
+	wfield = newwin(46,46,3,3);
 	if (!(fd = fopen("fields.sud", "r"))) {
 		printf("error opening file\n");
 		exit(1);
@@ -27,19 +36,23 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	fill_all();
-	printfield(0);
+	//	printfield(wfield, 0);
 	check_filled();
-	printfield(1);
+	printfield(wfield, 1);
 
 	/* main loop */
 	while (left > 0) {
+		printfield(wfield, 1);
 		check_filled();
+		printfield(wfield, 1);
 		check_single();
+		printfield(wfield, 1);
 		check_filled();
-		printfield(1);
+		printfield(wfield, 1);
 
 		left = get_left();
-		printf("left: %d\n", left);
+		winprintf(wfield, "left: %d\n\r", left);
+		wrefresh(wfield);
 		if (left != previousleft) {
 			previousleft = left;
 			count=0;
@@ -52,19 +65,24 @@ int main(int argc, char **argv)
 				check_double_value();
 
 			if (count == 3 && left > 0){
-				printf("unsolvable?\n");
-				printfield(1);
+				winprintf(wfield, "unsolvable?\n\r");
+				wrefresh(wfield);
+				printfield(wfield, 1);
 
 				/* Print the remaining array, so we can save it */
 				for (i=0; i<81; i++)
-					printf("%d", field[i].value);
-				printf("\n");
+					winprintf(wfield, "%d", field[i].value);
+				winprintf(wfield, "\n\r");
+				wrefresh(wfield);
+				endwin();
 				exit(1);
 			}
 			count++;
 		}
 	}
 
-	printfield(0);
+	//	printfield(wfield, 0);
+
+	endwin();
 	return(0);
 }
