@@ -21,6 +21,7 @@ void winprintf(WINDOW *wfield, char *fmt, ...)
 	char buffer[1024];
 	vsnprintf(buffer, 1023, fmt, va);
 	waddstr(wfield, buffer);
+	wrefresh(wfield);
 #else
 	vprintf(fmt,va);
 #endif /* HAVE_NCURSES */

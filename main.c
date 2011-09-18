@@ -24,8 +24,6 @@ int main(int argc, char **argv)
 	int count=0;
 	int i;
 #ifdef HAVE_NCURSES
-	WINDOW *wfield;
-
 	/* Initialize ncurses screen */
 	if (!initscr()) {
 		printf("Error initializing ncurses\n");
@@ -33,8 +31,10 @@ int main(int argc, char **argv)
 	}
 
 	wfield = newwin(46,46,3,3);
+	wtext = newwin(10,50,3,50);
 #else /* HAVE_NCURSES */
-	void *wfield = NULL;
+	wfield = NULL;
+	wtext = NULL;
 #endif /* HAVE_NCURSES */
 	
 	if (!(fd = fopen("fields.sud", "r"))) {
@@ -53,26 +53,35 @@ int main(int argc, char **argv)
 	/* main loop */
 	while (left > 0) {
 		printfield(wfield, 1);
+		winprintf(wtext, "check_filled\n\r");
 		check_filled();
 		printfield(wfield, 1);
+		winprintf(wtext, "check_single\n\r");
 		check_single();
 		printfield(wfield, 1);
+		winprintf(wtext, "check_filled\n\r");
 		check_filled();
 		printfield(wfield, 1);
 
 		left = get_left();
-		winprintf(wfield, "left: %d\n\r", left);
+		winprintf(wtext, "left: %d\n\r", left);
 		wrefresh(wfield);
 		if (left != previousleft) {
 			previousleft = left;
 			count=0;
 		} else {
-			if (count == 0) 
+			if (count == 0) {
+				winprintf(wtext, "Checking only\n\r");
 				check_only();
-			if (count == 1)
+			}
+			if (count == 1) {
+				winprintf(wtext, "Checking double\n\r");
 				check_double();
-			if (count == 2)
+			}
+			if (count == 2) {
+				winprintf(wtext, "Checking double value\n\r");
 				check_double_value();
+			}
 
 			if (count == 3 && left > 0){
 				winprintf(wfield, "unsolvable?\n\r");
