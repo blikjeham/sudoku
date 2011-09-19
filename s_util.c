@@ -148,10 +148,16 @@ void printfield(WINDOW *wfield, int possible)
 			else
 				winprintf(wfield, ". ");
 		} else {
-			if (possible)
-				winprintf(wfield, ".%d. ", field[i].value);
-			else
+			if (possible) {
+				/* Print initial values different than later values */
+				if (field[i].initial) {
+					winprintf(wfield, " %d  ", field[i].value);
+				} else {
+					winprintf(wfield, ".%d. ", field[i].value);
+				}
+			} else {
 				winprintf(wfield, "%d ", field[i].value);
+			}
 		}
 		if ((i % 81) != 80) {
 			if ((i % 3) == 2)
@@ -199,6 +205,13 @@ int readfield(FILE *fd)
 			continue;
 		}
 		field[i].value = (number & ~0x30);
+		/* Set the initial flag
+		   This will be used in printing the field*/
+		if (field[i].value > 0) {
+			field[i].initial = 1;
+		} else {
+			field[i].initial = 0;
+		}
 	}
 	return(0);
 }

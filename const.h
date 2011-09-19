@@ -24,6 +24,7 @@
 struct square {
 	int value;
 	int possible;
+	int initial;
 	int left;
 	int block;
 	int row;
