@@ -23,6 +23,16 @@ int main(int argc, char **argv)
 	int previousleft = 81;
 	int count=0;
 	int i;
+
+	if (!(fd = fopen("fields.sud", "r"))) {
+		printf("error opening file\n");
+		exit(1);
+	}
+	if(readfield(fd)) {
+		printf("error reading field\n");
+		exit(1);
+	}
+
 #ifdef HAVE_NCURSES
 	/* Initialize ncurses screen */
 	if (!initscr()) {
@@ -37,14 +47,6 @@ int main(int argc, char **argv)
 	wtext = NULL;
 #endif /* HAVE_NCURSES */
 	
-	if (!(fd = fopen("fields.sud", "r"))) {
-		printf("error opening file\n");
-		exit(1);
-	}
-	if(readfield(fd)) {
-		printf("error reading field\n");
-		exit(1);
-	}
 	fill_all();
 	//	printfield(wfield, 0);
 	check_filled();
