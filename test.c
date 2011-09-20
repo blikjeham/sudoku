@@ -1,5 +1,10 @@
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef HAVE_NCURSES
+#include <ncurses.h>
+#endif /* HAVE_NCURSES */
 #include "const.h"
 #include "s_util.h"
 
