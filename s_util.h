@@ -26,6 +26,7 @@ void check_double(void);
 
 /* check for double value possibilities in BRC */
 void check_double_value(void);
+void check_double_value_exact(void);
 
 /* get the number of values left */
 int get_left(void);
@@ -47,6 +48,7 @@ void fill_all(void);
 int i_to_brc(int, int );
 
 int check_num_brc(int, int *, int, int);
+int check_num_brc_exact(int, int *, int, int);
 
 int check_num(int, int, int);
 

@@ -81,11 +81,15 @@ int main(int argc, char **argv)
 				check_double();
 			}
 			if (count == 2) {
-				winprintf(wtext, "Checking double value\n\r");
+				winprintf(wtext, "Checking double value (exact)\n\r");
+				check_double_value_exact();
+			}
+			if (count == 3) {
+				winprintf(wtext, "Checking double value (loose)\n\r");
 				check_double_value();
 			}
 
-			if (count == 3 && left > 0){
+			if (count == 4 && left > 0){
 				winprintf(wfield, "unsolvable?\n\r");
 				wrefresh(wfield);
 				printfield(wfield, 1);
