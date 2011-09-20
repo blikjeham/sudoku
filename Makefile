@@ -30,7 +30,7 @@ sudoku: $(OBJ)
 # since test.c usually only contains some
 # test stuff
 test: $(TEST_OBJ)
-	$(CC) $(LFLAGS) -o $@ $^
+	$(LINK) -o $@ $^
 
 .PHONY: clean
 
