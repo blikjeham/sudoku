@@ -454,7 +454,8 @@ void fill_brc_double(int brc, int where, int *excl, int value)
 				field[i].possible &= ~(value);
 				field[i].left = field[i].left - mtop(removed);
 				winprintf(wtext, "_fbd: B %d, e[R]: %d, e[C]: %d, r: %d\n\r", where, excl[ROW], excl[COL], removed);
-				check_filled();
+				printfield(wfield, 1);
+				check_single();
 			}
 		} else if (brc == ROW) {
 			if ( (i_to_brc(ROW, i) == where)
@@ -467,7 +468,8 @@ void fill_brc_double(int brc, int where, int *excl, int value)
 				field[i].possible &= ~(value);
 				field[i].left = field[i].left - mtop(removed);
 				winprintf(wtext, "_fbd: R %d, e[B]: %d, e[C]: %d, r: %d\n\r", where, excl[BLOCK], excl[COL], removed);
-				check_filled();
+				printfield(wfield, 1);
+				check_single();
 			}
 		} else if (brc == COL) {
 			if ( (i_to_brc(COL, i) == where)
@@ -480,7 +482,8 @@ void fill_brc_double(int brc, int where, int *excl, int value)
 				field[i].possible &= ~(value);
 				field[i].left = field[i].left - mtop(removed);
 				winprintf(wtext, "_fbd: C %d, e[R]: %d, e[B]: %d, r: %d\n\r", where, excl[ROW], excl[BLOCK], removed);
-				check_filled();
+				printfield(wfield, 1);
+				check_single();
 			}
 		}
 		check_single();
