@@ -65,8 +65,6 @@ int main(int argc, char **argv)
 		check_filled();
 		printfield(wfield, 1);
 
-		left = get_left();
-		winprintf(wtext, "left: %d\n\r", left);
 		wrefresh(wfield);
 		if (left != previousleft) {
 			previousleft = left;

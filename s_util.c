@@ -211,7 +211,7 @@ void printfield(WINDOW *wfield, int possible)
 		winprintf(wfield, "\n\r");
 	}
 	wrefresh(wfield);
-	winprintf(wtext, "left: %d\n\r", get_left());
+	winprintf(wfield, "left: %d\n\r", get_left());
 }
 
 int readfield(FILE *fd)
