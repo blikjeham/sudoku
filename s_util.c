@@ -291,8 +291,8 @@ int check_num_brc(int brc, int *x_brc, int where, int mask)
 		     ) {
 			count++;
 			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
-			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+i);
-			x_brc[COL] |= vtom(i_to_brc(COL, i)+i);
+			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
+			x_brc[COL] |= vtom(i_to_brc(COL, i)+1);
 		}
 	}
 	return(count);
@@ -348,11 +348,11 @@ int check_num_brc_loose(int brc, int *x_brc, int where, int mask)
 		     ) {
 			count++;
 			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
-			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+i);
-			x_brc[COL] |= vtom(i_to_brc(COL, i)+i);
+			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
+			x_brc[COL] |= vtom(i_to_brc(COL, i)+1);
 		} else if ( (i_to_brc(brc, i) == where)
 			    && (field[i].value == 0)
-			    && (field[i].possible & 1)
+			    && (field[i].possible & mask)
 			    ) {
 			extracount++;
 		}
