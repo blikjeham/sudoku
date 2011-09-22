@@ -117,7 +117,7 @@ void check_double_value_exact(void)
 	}
 }
 
-void check_double_value(void)
+void check_double_value_loose(void)
 {
 	int i;
 	int mask;
@@ -130,7 +130,7 @@ void check_double_value(void)
 			for (brc=0; brc<3; brc++) {
 				bzero(a_brc, sizeof(int)*3);
 				ret = check_num_brc_loose(brc, a_brc, i, mask);
-				if ((ret < 1000) && (ret == mtop(mask)) ) {
+				if ((ret < 10) && (ret == mtop(mask)) ) {
 					winprintf(wtext, "cdv %d: %d, e[B]: %d, e[R]: %d, e[C]: %d, m: %d\n\r",
 						  brc, i, a_brc[BLOCK], a_brc[ROW], a_brc[COL], mask);
 					fill_brc_double(brc, i, a_brc, mask);

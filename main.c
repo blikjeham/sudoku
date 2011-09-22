@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 			}
 			if (count == 3) {
 				winprintf(wtext, "Checking double value (loose)\n\r");
-				check_double_value();
+				check_double_value_loose();
 			}
 
 			if (count == 4 && left > 0){

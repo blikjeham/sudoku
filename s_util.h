@@ -42,13 +42,13 @@ void check_double(void);
  * mask occurs exactly the same number of times
  * as the number of values composing this mask.
  * The exact function checks if the possibilities
- * is the mask exactly. The `normal' (i.e. loose)
+ * is the mask exactly. The loose
  * function allows for other possibilities in the
  * same field.
  * Hence: loose matching should be used with care.
  */
-void check_double_value(void);
 void check_double_value_exact(void);
+void check_double_value_loose(void);
 
 /* get the number of possible values left */
 int get_left(void);
