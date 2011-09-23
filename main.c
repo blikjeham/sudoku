@@ -48,7 +48,6 @@ int main(int argc, char **argv)
 #endif /* HAVE_NCURSES */
 	
 	fill_all();
-	//	printfield(wfield, 0);
 	check_filled();
 	printfield(wfield, 1);
 
@@ -65,7 +64,6 @@ int main(int argc, char **argv)
 		check_filled();
 		printfield(wfield, 1);
 
-		wrefresh(wfield);
 		if (left != previousleft) {
 			previousleft = left;
 			count=0;
@@ -104,7 +102,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	//	printfield(wfield, 0);
+	printfield(wfield, 0);
 
 	endwin();
 	return(0);
