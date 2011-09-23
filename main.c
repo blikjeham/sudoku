@@ -40,8 +40,9 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	wfield = newwin(46,46,3,3);
-	wtext = newwin(10,50,3,50);
+	wfield = newwin(20,46,3,3);
+	wtext = newwin(20,46,3,50);
+	scrollok(wtext, TRUE);
 #else /* HAVE_NCURSES */
 	wfield = NULL;
 	wtext = NULL;
