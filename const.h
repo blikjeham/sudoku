@@ -31,7 +31,9 @@ struct square {
 	int col;
 } field[81];
 
+/* Bruteforce backup */
 struct square bf_backup[81];
+int bruteforced;
 
 struct single {
 	int filled;
