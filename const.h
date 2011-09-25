@@ -31,6 +31,8 @@ struct square {
 	int col;
 } field[81];
 
+struct square bf_backup[81];
+
 struct single {
 	int filled;
 	int notfilled;

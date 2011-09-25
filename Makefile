@@ -14,7 +14,7 @@ INSTALL_PROGRAM = ${INSTALL}
 INSTALL_DATA = ${INSTALL} -m 644
 
 DEPS = config.h s_util.h const.h
-OBJ = main.o s_util.o
+OBJ = main.o s_util.o bf_util.o
 
 TEST_OBJ = test.o s_util.o
 
