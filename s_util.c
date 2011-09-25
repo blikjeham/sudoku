@@ -28,6 +28,16 @@ void winprintf(WINDOW *wfield, char *fmt, ...)
 	va_end(va);
 }
 
+int is_valid(void)
+{
+	int i;
+	for (i=0; i<81; i++) {
+		if ( (field[i].value == 0) && (field[i].possible == 0) )
+			return(0);
+	}
+	return(1);
+}
+
 void check_filled(void)
 {
 	int i;

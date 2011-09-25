@@ -14,6 +14,12 @@
  */
 void winprintf(WINDOW *, char *, ...);
 
+/* check if the sudoku is still valid.
+ * It is invalid if there is a field with
+ * no value and no possibilities left.
+ */
+int is_valid(void);
+
 /* check the field for values that are filled
  * Remove the possibilities that are no longer
  * possible.
