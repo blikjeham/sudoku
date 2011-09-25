@@ -7,14 +7,45 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
+#include <string.h>
 
 #include "const.h"
 #include "s_util.h"
+#include "bf_util.h"
 
 struct single row[9];
 struct single col[9];
 struct single block[9];
 
+void bruteforce(void)
+{
+	char brc=0;
+	wclear(wtext);
+	wrefresh(wtext);
+	winprintf(wtext, "\n\rBacking up the field for undo.");
+	memcpy(bf_backup, field, sizeof(struct square[81]));
+
+	winprintf(wtext, "\n\rSelect a block, row, or column [b/r/c]?");
+	brc = wgetch(wtext);
+	switch(brc) {
+	case 'b':
+	case 'B':
+		bf_block();
+		break;
+	case 'r':
+	case 'R':
+		bf_row();
+		break;
+	case 'c':
+	case 'C':
+		bf_col();
+		break;
+	default:
+		winprintf(wtext, "invalid choice.\n\r");
+		bruteforce();
+		break;
+	}
+}
 
 int main(int argc, char **argv)
 {
@@ -39,11 +70,18 @@ int main(int argc, char **argv)
 		printf("Error initializing ncurses\n");
 		exit(1);
 	}
+	/* Initialize the colors */
+	start_color();
+	init_pair(1, COLOR_WHITE, COLOR_BLACK);
+	init_pair(2, COLOR_BLACK, COLOR_WHITE);
 
+	/* Set the windows */
 	wfield = newwin(20,46,3,3);
-	wtext = newwin(20,46,3,50);
+	wtext = newwin(18,46,3,50);
 	scrollok(wtext, TRUE);
+
 #else /* HAVE_NCURSES */
+
 	wfield = NULL;
 	wtext = NULL;
 #endif /* HAVE_NCURSES */
@@ -55,34 +93,30 @@ int main(int argc, char **argv)
 	/* main loop */
 	while (left > 0) {
 		printfield(wfield, 1);
-		winprintf(wtext, "check_filled\n\r");
-		check_filled();
-		printfield(wfield, 1);
-		winprintf(wtext, "check_single\n\r");
-		check_single();
-		printfield(wfield, 1);
-		winprintf(wtext, "check_filled\n\r");
 		check_filled();
 		printfield(wfield, 1);
 
+		check_single();
+		printfield(wfield, 1);
+
+		check_filled();
+		printfield(wfield, 1);
+
+		left = get_left();
 		if (left != previousleft) {
 			previousleft = left;
 			count=0;
 		} else {
 			if (count == 0) {
-				winprintf(wtext, "Checking only\n\r");
 				check_only();
 			}
 			if (count == 1) {
-				winprintf(wtext, "Checking double\n\r");
 				check_double();
 			}
 			if (count == 2) {
-				winprintf(wtext, "Checking double value (exact)\n\r");
 				check_double_value_exact();
 			}
 			if (count == 3) {
-				winprintf(wtext, "Checking double value (loose)\n\r");
 				check_double_value_loose();
 			}
 
@@ -90,19 +124,33 @@ int main(int argc, char **argv)
 				winprintf(wfield, "unsolvable?\n\r");
 				wrefresh(wfield);
 				printfield(wfield, 1);
+				winprintf(wtext, "\n\rDo you wish to bruteforce the sudoku? [y/N]");
+				char yesno='n';
+				yesno = wgetch(wtext);
+				if(yesno == 'Y' || yesno == 'y') {
+					/* bruteforce */
+					bruteforce();
+					/* reset the values since they are no longer to be trusted. */
+					left = 81;
+					count = 0;
+					fill_all();
+					check_filled();
+					printfield(wfield, 1);
 
-				/* Print the remaining array, so we can save it */
-				for (i=0; i<81; i++)
-					winprintf(wfield, "%d", field[i].value);
-				winprintf(wfield, "\n\r");
-				wrefresh(wfield);
-				endwin();
-				exit(1);
+				} else {
+					/* Print the remaining array, so we can save it */
+					for (i=0; i<81; i++)
+						winprintf(wfield, "%d", field[i].value);
+					winprintf(wfield, "\n\r");
+					wrefresh(wfield);
+					endwin();
+					exit(1);
+				}
+
 			}
 			count++;
 		}
 	}
-
 	printfield(wfield, 0);
 
 	endwin();
