@@ -17,38 +17,6 @@ struct single row[9];
 struct single col[9];
 struct single block[9];
 
-void bruteforce(void)
-{
-	char brc=0;
-	wclear(wtext);
-	wrefresh(wtext);
-	winprintf(wtext, "\n\rBacking up the field for undo.");
-	memcpy(bf_backup, field, sizeof(struct square[81]));
-
-	winprintf(wtext, "\n\rSelect a block, row, or column [b/r/c]?");
-	brc = wgetch(wtext);
-	switch(brc) {
-	case 'b':
-	case 'B':
-		bf_block();
-		break;
-	case 'r':
-	case 'R':
-		bf_row();
-		break;
-	case 'c':
-	case 'C':
-		bf_col();
-		break;
-	default:
-		winprintf(wtext, "invalid choice.\n\r");
-		bruteforce();
-		break;
-	}
-	/* set bruteforced */
-	bruteforced = 1;
-}
-
 int main(int argc, char **argv)
 {
 	FILE *fd;

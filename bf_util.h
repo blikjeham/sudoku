@@ -25,4 +25,6 @@ int brc_to_i(int , int , int );
  */
 void bf_printfield(int , int );
 
+void bruteforce(void);
+
 #endif /* BF_UTIL_H */

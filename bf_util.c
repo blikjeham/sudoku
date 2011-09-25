@@ -1,6 +1,7 @@
 #include "config.h"
 
 #include <ncurses.h>
+#include <string.h>
 
 #include "const.h"
 #include "bf_util.h"
@@ -49,6 +50,8 @@ void bf_getfield(int brc, int brc_where)
 	where = brc_to_i(brc, brc_where, which);
 	if (is_bf_able(where)) {
 		bf_set_value(where);
+	} else {
+		bruteforce();
 	}
 	
 }
@@ -143,4 +146,36 @@ void bf_printfield(int brc, int where)
 	winprintf(wfield, "\n\r");
 
 	winprintf(wfield, "left: %d\n\r", get_left());
+}
+
+void bruteforce(void)
+{
+	char brc=0;
+	wclear(wtext);
+	wrefresh(wtext);
+	winprintf(wtext, "\n\rBacking up the field for undo.");
+	memcpy(bf_backup, field, sizeof(struct square[81]));
+
+	winprintf(wtext, "\n\rSelect a block, row, or column [b/r/c]?");
+	brc = wgetch(wtext);
+	switch(brc) {
+	case 'b':
+	case 'B':
+		bf_block();
+		break;
+	case 'r':
+	case 'R':
+		bf_row();
+		break;
+	case 'c':
+	case 'C':
+		bf_col();
+		break;
+	default:
+		winprintf(wtext, "invalid choice.\n\r");
+		bruteforce();
+		break;
+	}
+	/* set bruteforced */
+	bruteforced = 1;
 }
