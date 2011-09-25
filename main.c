@@ -92,6 +92,9 @@ int main(int argc, char **argv)
 
 	/* main loop */
 	while (left > 0) {
+		if (!is_valid()) {
+			winprintf(wtext, "\n\rSudoku is invalid.\n\r");
+		}
 		printfield(wfield, 1);
 		check_filled();
 		printfield(wfield, 1);

@@ -114,7 +114,7 @@ void bf_printfield(int brc, int where)
 	wmove(wfield, 0,0);
 	wclear(wfield);
 	wrefresh(wfield);
-	winprintf(wfield, "brc: %d, where: %d\n\r", brc, where);
+
 	winprintf(wfield, "    0   1   2     3   4   5     6   7   8\n\r");
 	winprintf(wfield, " +-------------+-------------+-------------+\n\r0| ");
 	for (i=0; i<81; i++) {
