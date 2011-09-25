@@ -36,62 +36,48 @@ void bf_set_value(int where)
 	}
 }
 
-void bf_block(void)
+void bf_getfield(int brc, int brc_where)
 {
-	int block;
-	int which;
-	int where;
+	int which, where;
 
-	winprintf(wtext, "\n\rPlease select a block:");
-	block = wgetch(wtext) % 0x30;
-	winprintf(wtext, "\n\rselected block %d\n\r", block);
 	wclear(wfield);
 	wrefresh(wfield);
-	bf_printfield(BLOCK, block);
+
+	bf_printfield(brc, brc_where);
 	winprintf(wtext, "\n\rPlease select a field:");
 	which = wgetch(wtext) % 0x30;
-	where = brc_to_i(BLOCK, block, which);
+	where = brc_to_i(brc, brc_where, which);
 	if (is_bf_able(where)) {
 		bf_set_value(where);
 	}
+	
+}
+
+void bf_block(void)
+{
+	int block;
+	winprintf(wtext, "\n\rPlease select a block:");
+	block = wgetch(wtext) % 0x30;
+	winprintf(wtext, "\n\rselected block %d\n\r", block);
+	bf_getfield(BLOCK, block);
 }
 
 void bf_row(void)
 {
 	int row;
-	int which;
-	int where;
 	winprintf(wtext, "\n\rPlease select a row:");
 	row = wgetch(wtext) % 0x30;
 	winprintf(wtext, "\n\rselected row %d\n\r", row);
-	wclear(wfield);
-	wrefresh(wfield);
-	bf_printfield(ROW, row);
-	winprintf(wtext, "\n\rPlease select a field:");
-	which = wgetch(wtext) % 0x30;
-	where = brc_to_i(ROW, row, which);
-	if (is_bf_able(where)) {
-		bf_set_value(where);
-	}
+	bf_getfield(ROW, row);
 }
 
 void bf_col(void)
 {
 	int col;
-	int which;
-	int where;
 	winprintf(wtext, "\n\rPlease select a column:");
 	col = wgetch(wtext) % 0x30;
 	winprintf(wtext, "\n\rselected column %d\n\r", col);
-	wclear(wfield);
-	wrefresh(wfield);
-	bf_printfield(COL, col);
-	winprintf(wtext, "\n\rPlease select a field:");
-	which = wgetch(wtext) % 0x30;
-	where = brc_to_i(COL, col, which);
-	if (is_bf_able(where)) {
-		bf_set_value(where);
-	}
+	bf_getfield(COL, col);
 }
 
 int brc_to_i(int brc, int which, int where)

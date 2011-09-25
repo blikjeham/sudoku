@@ -9,6 +9,9 @@ int is_bf_able(int );
 /* ask for user to set the value */
 void bf_set_value(int );
 
+/* Ask for the field and value etc. */
+void bf_getfield(int , int )
+
 /* Bruteforce the BRC. */
 void bf_block(void);
 void bf_row(void);
