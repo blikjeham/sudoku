@@ -45,6 +45,8 @@ void bruteforce(void)
 		bruteforce();
 		break;
 	}
+	/* set bruteforced */
+	bruteforced = 1;
 }
 
 int main(int argc, char **argv)
@@ -89,11 +91,16 @@ int main(int argc, char **argv)
 	fill_all();
 	check_filled();
 	printfield(wfield, 1);
+	bruteforced = 0;
 
 	/* main loop */
 	while (left > 0) {
 		if (!is_valid()) {
 			winprintf(wtext, "\n\rSudoku is invalid.\n\r");
+			if (bruteforced == 1) {
+				winprintf(wtext, "Restoring backup. You should try again.\n\r");
+				memcpy(field, bf_backup, sizeof(struct square[81]));
+			}
 		}
 		printfield(wfield, 1);
 		check_filled();
