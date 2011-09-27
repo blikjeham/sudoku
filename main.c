@@ -24,7 +24,8 @@ int main(int argc, char **argv)
 	int previousleft = 81;
 	int count=0;
 	int i;
-
+	char yesno;
+	
 	if (!(fd = fopen("fields.sud", "r"))) {
 		printf("error opening file\n");
 		exit(1);
@@ -66,8 +67,12 @@ int main(int argc, char **argv)
 		if (!is_valid()) {
 			winprintf(wtext, "\n\rSudoku is invalid.\n\r");
 			if (bruteforced == 1) {
-				winprintf(wtext, "Restoring backup. You should try again.\n\r");
-				memcpy(field, bf_backup, sizeof(struct square[81]));
+				winprintf(wtext, "Do you wish to restore the backup? [Y/n]");
+				yesno = wgetch(wtext);
+				if (yesno != 'n' && yesno != 'N') {
+					winprintf(wtext, "\n\rRestoring backup. You should try again.\n\r");
+					memcpy(field, bf_backup, sizeof(struct square[81]));
+				}
 			}
 		}
 		printfield(wfield, 1);
@@ -103,7 +108,7 @@ int main(int argc, char **argv)
 				wrefresh(wfield);
 				printfield(wfield, 1);
 				winprintf(wtext, "\n\rDo you wish to bruteforce the sudoku? [y/N]");
-				char yesno='n';
+
 				yesno = wgetch(wtext);
 				if(yesno == 'Y' || yesno == 'y') {
 					/* bruteforce */
