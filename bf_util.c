@@ -21,32 +21,39 @@ int is_bf_able(int where)
 void bf_set_value(int where)
 {
 	int i;
-	int value;
+	int value=0;
        
 	winprintf(wtext, "\n\rPossible values are: ");
 	for (i=1; i<=9; i++) {
 		if (field[where].possible & vtom(i))
 			winprintf(wtext, "%d ", i);
 	}
-	winprintf(wtext, "\n\rEnter a value: ");
-	value = wgetch(wtext) % 0x30;
+	while (value<1 || value>9) {
+		winprintf(wtext, "\n\rEnter a value: ");
+		value = wgetch(wtext) % 0x30;
+	}
 	if (field[where].possible & vtom(value)) {
 		field[where].value = value;
 		field[where].possible = 0x0;
 		field[where].left = 0;
+	} else {
+		bf_set_value(where);
 	}
 }
 
 void bf_getfield(int brc, int brc_where)
 {
-	int which, where;
-
+	int which=-1;
+	int where=-1;
+	
 	wclear(wfield);
 	wrefresh(wfield);
 
 	bf_printfield(brc, brc_where);
-	winprintf(wtext, "\n\rPlease select a field:");
-	which = wgetch(wtext) % 0x30;
+	while (which<0 || which>8) {
+		winprintf(wtext, "\n\rPlease select a field:");
+		which = wgetch(wtext) % 0x30;
+	}
 	where = brc_to_i(brc, brc_where, which);
 	if (is_bf_able(where)) {
 		bf_set_value(where);
@@ -58,27 +65,33 @@ void bf_getfield(int brc, int brc_where)
 
 void bf_block(void)
 {
-	int block;
-	winprintf(wtext, "\n\rPlease select a block:");
-	block = wgetch(wtext) % 0x30;
+	int block=-1;
+	while (block<0 || block>8) {
+		winprintf(wtext, "\n\rPlease select a block:");
+		block = wgetch(wtext) % 0x30;
+	}
 	winprintf(wtext, "\n\rselected block %d\n\r", block);
 	bf_getfield(BLOCK, block);
 }
 
 void bf_row(void)
 {
-	int row;
-	winprintf(wtext, "\n\rPlease select a row:");
-	row = wgetch(wtext) % 0x30;
+	int row=-1;
+	while (row<0 || row>8) {
+		winprintf(wtext, "\n\rPlease select a row:");
+		row = wgetch(wtext) % 0x30;
+	}
 	winprintf(wtext, "\n\rselected row %d\n\r", row);
 	bf_getfield(ROW, row);
 }
 
 void bf_col(void)
 {
-	int col;
-	winprintf(wtext, "\n\rPlease select a column:");
-	col = wgetch(wtext) % 0x30;
+	int col=-1;
+	while (col<0 || col>8) {
+		winprintf(wtext, "\n\rPlease select a column:");
+		col = wgetch(wtext) % 0x30;
+	}
 	winprintf(wtext, "\n\rselected column %d\n\r", col);
 	bf_getfield(COL, col);
 }
@@ -153,8 +166,11 @@ void bruteforce(void)
 	char brc=0;
 	wclear(wtext);
 	wrefresh(wtext);
-	winprintf(wtext, "\n\rBacking up the field for undo.");
-	memcpy(bf_backup, field, sizeof(struct square[81]));
+	if (!bruteforced) {
+		winprintf(wtext, "\n\rBacking up the field for undo.");
+		memcpy(bf_backup, field, sizeof(struct square[81]));
+		bruteforced = 1;
+	}
 
 	winprintf(wtext, "\n\rSelect a block, row, or column [b/r/c]?");
 	brc = wgetch(wtext);
@@ -176,6 +192,4 @@ void bruteforce(void)
 		bruteforce();
 		break;
 	}
-	/* set bruteforced */
-	bruteforced = 1;
 }

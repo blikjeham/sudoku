@@ -72,6 +72,7 @@ int main(int argc, char **argv)
 				if (yesno != 'n' && yesno != 'N') {
 					winprintf(wtext, "\n\rRestoring backup. You should try again.\n\r");
 					memcpy(field, bf_backup, sizeof(struct square[81]));
+					bruteforced = 0;
 				}
 			}
 		}
@@ -134,7 +135,7 @@ int main(int argc, char **argv)
 			count++;
 		}
 	}
-	printfield(wfield, 0);
+	printfield(wfield, 1);
 
 	endwin();
 	return(0);
