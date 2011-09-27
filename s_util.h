@@ -117,4 +117,7 @@ int mtov(int );
 /* convert a possibilities field to a single value */
 int get_value(int );
 
+/* Final validity check, just to be sure */
+int final_check(void);
+
 #endif /* S_UTIL_H */

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <strings.h>
 #include "s_util.h"
+#include "bf_util.h"
 #include "const.h"
 
 extern struct single row[9];
@@ -636,4 +637,28 @@ int get_value(int possib)
 	if (possib & NINE)
 		return(9);
 	return 0;
+}
+
+int final_check(void)
+{
+	int where;
+	int brc;
+	int i;
+	int mask;
+
+	winprintf(wtext, "\n\rFinal check.\n\r");
+	for (where=0; where<9; where++) {
+		for (brc=0; brc<3; brc++) {
+			mask=0x0;
+			bf_printfield(brc, where);
+			for (i=0; i<81; i++) {
+				if (i_to_brc(brc, i) == where) {
+					mask |= vtom(field[i].value);
+				}
+			}
+			if (mask != ALL)
+				return(0);
+		}
+	}
+	return(1);
 }

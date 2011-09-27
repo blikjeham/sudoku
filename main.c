@@ -135,8 +135,12 @@ int main(int argc, char **argv)
 			count++;
 		}
 	}
+	if (final_check()) {
+		winprintf(wtext, "\n\rSolved successfully\n\r");
+	} else {
+		winprintf(wtext, "\n\rThere are still some errors\n\r");
+	}
 	printfield(wfield, 1);
-
 	endwin();
 	return(0);
 }
