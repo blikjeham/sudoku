@@ -650,6 +650,8 @@ int final_check(void)
 	for (where=0; where<9; where++) {
 		for (brc=0; brc<3; brc++) {
 			mask=0x0;
+			
+			/* print the field using highlights. */
 			bf_printfield(brc, where);
 			for (i=0; i<81; i++) {
 				if (i_to_brc(brc, i) == where) {
