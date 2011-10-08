@@ -22,8 +22,8 @@
 #define COL 2
 
 struct square {
-	int value;
-	int possible;
+	unsigned int value:8;
+	unsigned int possible:9;
 	int initial;
 	int left;
 	int block;
