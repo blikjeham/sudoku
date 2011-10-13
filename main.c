@@ -20,8 +20,8 @@ struct single block[9];
 int main(int argc, char **argv)
 {
 	FILE *fd;
-	int left = 81;
-	int previousleft = 81;
+	int left = (9*9)*9;
+	int previousleft = (9*9)*9;
 	int count=0;
 	int i;
 	char yesno;
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 		check_filled();
 		printfield(wfield, 1);
 
-		check_single();
+		check_only();
 		printfield(wfield, 1);
 
 		check_filled();
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 			count=0;
 		} else {
 			if (count == 0) {
-				check_only();
+				check_single();
 			}
 			if (count == 1) {
 				check_double();
@@ -115,7 +115,7 @@ int main(int argc, char **argv)
 					/* bruteforce */
 					bruteforce();
 					/* reset the values since they are no longer to be trusted. */
-					left = 81;
+					left = (9*9)*9;
 					count = 0;
 					fill_all();
 					check_filled();
