@@ -6,6 +6,8 @@
  */
 int is_bf_able(int );
 
+int is_abf_able(int );
+
 /* ask for user to set the value */
 void bf_set_value(int );
 
@@ -27,4 +29,7 @@ void bf_printfield(int , int );
 
 void bruteforce(void);
 
+int find_first_abfable(void);
+
+void autobruteforce(void);
 #endif /* BF_UTIL_H */

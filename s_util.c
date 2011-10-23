@@ -245,6 +245,7 @@ int readfield(FILE *fd)
 		} else {
 			field[i].initial = 0;
 		}
+		field[i].bftry = 0x0;
 	}
 	return(0);
 }

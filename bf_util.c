@@ -18,6 +18,15 @@ int is_bf_able(int where)
 	}
 }
 
+int is_abf_able(int where)
+{
+	if ((field[where].initial > 0) || (field[where].value > 0)) {
+		return(0);
+	} else {
+		return(1);
+	}
+}
+
 void bf_set_value(int i)
 {
 	int num;
@@ -191,5 +200,41 @@ void bruteforce(void)
 		winprintf(wtext, "invalid choice.\n\r");
 		bruteforce();
 		break;
+	}
+}
+
+int find_first_abfable(void)
+{
+	int i = 0;
+	for (i=0; i<81; i++) {
+		if(is_abf_able(i) && (field[i].bftry != field[i].possible)) {
+			return(i);
+		}
+	}
+	return(-1);
+}
+
+void autobruteforce(void)
+{
+	int i = 0;
+	int num = 0;
+	
+	if(!bruteforced) {
+		winprintf(wtext, "\n\rBacking up the field for undo.");
+		memcpy(bf_backup, field, sizeof(struct square[81]));
+		bruteforced = 2;
+	}
+
+	/* find the first field that is bruteforcable */
+	i = find_first_abfable();
+	for (num=1; num<10; num++) {
+		if( (field[i].possible & vtom(num)) && !(field[i].bftry & vtom(num)) ) {
+			field[i].value = num;
+			field[i].possible = 0x0;
+			field[i].left = 0;
+			field[i].bftry |= vtom(num);
+			/* also modify the bftry of the backup, so we can keep track */
+			bf_backup[i].bftry |= vtom(num);
+		}
 	}
 }

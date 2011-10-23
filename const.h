@@ -29,6 +29,7 @@ struct square {
 	int block;
 	int row;
 	int col;
+	int bftry;
 } field[81];
 
 /* Bruteforce backup */

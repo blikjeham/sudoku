@@ -75,6 +75,11 @@ int main(int argc, char **argv)
 					bruteforced = 0;
 				}
 			}
+			if (bruteforced > 1) {
+				winprintf(wtext, "\n\rRestoring backup");
+				memcpy(field, bf_backup, sizeof(struct square[81]));
+				bruteforced++;
+			}
 		}
 		printfield(wfield, 1);
 		check_filled();
@@ -105,30 +110,47 @@ int main(int argc, char **argv)
 			}
 
 			if (count == 4 && left > 0){
-				winprintf(wfield, "unsolvable?\n\r");
-				wrefresh(wfield);
-				printfield(wfield, 1);
-				winprintf(wtext, "\n\rDo you wish to bruteforce the sudoku? [y/N]");
-
-				yesno = wgetch(wtext);
-				if(yesno == 'Y' || yesno == 'y') {
-					/* bruteforce */
-					bruteforce();
-					/* reset the values since they are no longer to be trusted. */
+				if (bruteforced > 1) {
+					autobruteforce();
 					left = (9*9)*9;
 					count = 0;
 					fill_all();
 					check_filled();
 					printfield(wfield, 1);
-
 				} else {
-					/* Print the remaining array, so we can save it */
-					for (i=0; i<81; i++)
-						winprintf(wfield, "%d", field[i].value);
-					winprintf(wfield, "\n\r");
+					winprintf(wfield, "unsolvable?\n\r");
 					wrefresh(wfield);
-					endwin();
-					exit(1);
+					printfield(wfield, 1);
+					winprintf(wtext, "\n\rDo you wish to bruteforce the sudoku? [a/y/N]");
+
+					yesno = wgetch(wtext);
+					if(yesno == 'Y' || yesno == 'y') {
+						/* bruteforce */
+						bruteforce();
+						/* reset the values since they are no longer to be trusted. */
+						left = (9*9)*9;
+						count = 0;
+						fill_all();
+						check_filled();
+						printfield(wfield, 1);
+
+					} else if(yesno == 'A' || yesno == 'a') {
+						/* Automatically brute force the sudoku */
+						autobruteforce();
+						left = (9*9)*9;
+						count = 0;
+						fill_all();
+						check_filled();
+						printfield(wfield, 1);
+					} else {
+						/* Print the remaining array, so we can save it */
+						for (i=0; i<81; i++)
+							winprintf(wfield, "%d", field[i].value);
+						winprintf(wfield, "\n\r");
+						wrefresh(wfield);
+						endwin();
+						exit(1);
+					}
 				}
 
 			}
