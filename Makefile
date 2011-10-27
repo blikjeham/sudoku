@@ -8,7 +8,7 @@ CFLAGS = -Wall -O2 $(DEBUG)
 LDFLAGS = -lcurses
 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
-LINK = $(CC) $(CFLAGS) $(LDFLAGS)
+LINK = $(CC) $(CFLAGS)
 INSTALL = /usr/bin/install
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_DATA = ${INSTALL} -m 644
@@ -24,7 +24,7 @@ TEST_OBJ = test.o s_util.o
 all: sudoku
 
 sudoku: $(OBJ)
-	 $(LINK) -o $@ $^
+	 $(LINK) -o $@ $^ $(LDFLAGS)
 
 # make test is just for debugging purposes
 # since test.c usually only contains some
