@@ -25,6 +25,8 @@ int main(int argc, char **argv)
 	int count=0;
 	int i;
 	char yesno;
+
+	bf_backups = malloc(sizeof(struct bf_backups));
 	
 	if (!(fd = fopen("fields.sud", "r"))) {
 		printf("error opening file\n");
@@ -71,14 +73,15 @@ int main(int argc, char **argv)
 				yesno = wgetch(wtext);
 				if (yesno != 'n' && yesno != 'N') {
 					winprintf(wtext, "\n\rRestoring backup. You should try again.\n\r");
-					memcpy(field, bf_backup, sizeof(struct square[81]));
+					if (restore_backup() == -1)
+						winprintf(wtext, "Restore not possible\n\r");
 					bruteforced = 0;
 				}
 			}
 			if (bruteforced > 1) {
 				winprintf(wtext, "\n\rRestoring backup");
-				memcpy(field, bf_backup, sizeof(struct square[81]));
-				bruteforced++;
+				if (restore_backup() == -1)
+					winprintf(wtext, "\n\rRestore not possible");
 			}
 		}
 		printfield(wfield, 1);

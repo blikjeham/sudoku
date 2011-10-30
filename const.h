@@ -33,6 +33,11 @@ struct square {
 } field[81];
 
 /* Bruteforce backup */
+struct bf_backups {
+	struct square current[81];
+	struct bf_backups *previous;
+} *bf_backups;
+
 struct square bf_backup[81];
 int bruteforced;
 

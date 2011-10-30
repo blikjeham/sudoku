@@ -170,6 +170,37 @@ void bf_printfield(int brc, int where)
 	winprintf(wfield, "left: %d\n\r", get_left());
 }
 
+int make_backup()
+{
+	struct bf_backups *new;
+	int i;
+
+	new = (struct bf_backups *)malloc(sizeof(struct bf_backups));
+	memcpy(new, bf_backups, sizeof(struct bf_backups));
+	new->previous = (struct bf_backups *)bf_backups;
+	
+	for (i=0; i<81; i++) {
+		new->current[i] = field[i];
+	}
+
+	bf_backups = new;
+	return(0);
+}
+
+int restore_backup()
+{
+	int i;
+	if (bf_backups->previous == NULL)
+		return(-1);
+
+	for (i=0; i<81; i++) {
+		field[i] = bf_backups->current[i];
+	}
+	bf_backups = bf_backups->previous;
+
+	return(0);
+}
+
 void bruteforce(void)
 {
 	char brc=0;
@@ -177,7 +208,7 @@ void bruteforce(void)
 	wrefresh(wtext);
 	if (!bruteforced) {
 		winprintf(wtext, "\n\rBacking up the field for undo.");
-		memcpy(bf_backup, field, sizeof(struct square[81]));
+		make_backup();
 		bruteforced = 1;
 	}
 
@@ -219,11 +250,13 @@ void autobruteforce(void)
 	int i = 0;
 	int num = 0;
 	
-	if(!bruteforced) {
-		winprintf(wtext, "\n\rBacking up the field for undo.");
-		memcpy(bf_backup, field, sizeof(struct square[81]));
+	winprintf(wtext, "\n\rBacking up the field for undo. (%d)", bruteforced);
+	make_backup();
+	if (!bruteforced)
 		bruteforced = 2;
-	}
+	else
+		bruteforced++;
+
 
 	/* find the first field that is bruteforcable */
 	i = find_first_abfable();
@@ -234,7 +267,7 @@ void autobruteforce(void)
 			field[i].left = 0;
 			field[i].bftry |= vtom(num);
 			/* also modify the bftry of the backup, so we can keep track */
-			bf_backup[i].bftry |= vtom(num);
+			bf_backups->current[i].bftry |= vtom(num);
 		}
 	}
 }

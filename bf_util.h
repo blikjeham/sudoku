@@ -22,6 +22,10 @@ void bf_col(void);
 /* convert a field within a BRC to the global field */
 int brc_to_i(int , int , int );
 
+int make_backup(void);
+
+int restore_backup(void);
+
 /* Print the field with the BRC highlighted that we want
  * to bruteforce
  */
