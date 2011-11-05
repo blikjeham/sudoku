@@ -16,7 +16,7 @@ INSTALL_DATA = ${INSTALL} -m 644
 DEPS = config.h s_util.h const.h
 OBJ = main.o s_util.o bf_util.o
 
-TEST_OBJ = test.o s_util.o
+TEST_OBJ = test.o s_util.o bf_util.o
 
 %.o: %.c $(DEPS)
 	$(COMPILE) -c -o $@ $<
@@ -30,7 +30,7 @@ sudoku: $(OBJ)
 # since test.c usually only contains some
 # test stuff
 test: $(TEST_OBJ)
-	$(LINK) -o $@ $^
+	$(LINK) -o $@ $^ $(LDFLAGS)
 
 .PHONY: clean
 
