@@ -2,6 +2,7 @@
 
 #include <ncurses.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "const.h"
 #include "bf_util.h"
@@ -9,7 +10,10 @@
 
 int is_bf_able(int where)
 {
-	if ((field[where].initial > 0) || (field[where].value > 0)) {
+	if ((field[where].initial > 0)
+	    || (field[where].value > 0)
+	    || (field[where].bftry != field[where].possible)
+	    ) {
 		winprintf(wtext, "\n\rNot bruteforcable (%d)\n\r", where);
 		return(0);
 	}
@@ -177,6 +181,7 @@ int make_backup()
 
 	new = (struct bf_backups *)malloc(sizeof(struct bf_backups));
 	memcpy(new, bf_backups, sizeof(struct bf_backups));
+	new->depth++;
 	new->previous = (struct bf_backups *)bf_backups;
 	
 	for (i=0; i<81; i++) {
@@ -184,11 +189,13 @@ int make_backup()
 	}
 
 	bf_backups = new;
+	winprintf(wtext, "\n\rM-Backup depth: %d", bf_backups->depth);
 	return(0);
 }
 
 int restore_backup()
 {
+	struct bf_backups *old;
 	int i;
 	if (bf_backups->previous == NULL)
 		return(-1);
@@ -196,8 +203,10 @@ int restore_backup()
 	for (i=0; i<81; i++) {
 		field[i] = bf_backups->current[i];
 	}
+	old = bf_backups;
 	bf_backups = bf_backups->previous;
-
+	free(old);
+	winprintf(wtext, "\n\rR-Backup depth: %d", bf_backups->depth);
 	return(0);
 }
 
@@ -238,11 +247,28 @@ int find_first_abfable(void)
 {
 	int i = 0;
 	for (i=0; i<81; i++) {
-		if(is_abf_able(i) && (field[i].bftry != field[i].possible)) {
+		if(is_abf_able(i)) {
 			return(i);
 		}
 	}
 	return(-1);
+}
+
+int find_best_abfable(void)
+{
+	int i = 0;
+	int bestfield = -1;
+	int mincount = 0;
+	
+	for (i=0; i<81; i++) {
+		if ( (is_abf_able(i))
+		     && (field[i].left > mincount)
+		     ) {
+			bestfield = i;
+			mincount = field[i].left;
+		}
+	}
+	return(bestfield);
 }
 
 void autobruteforce(void)
@@ -250,18 +276,24 @@ void autobruteforce(void)
 	int i = 0;
 	int num = 0;
 	
-	winprintf(wtext, "\n\rBacking up the field for undo. (%d)", bruteforced);
+	/* find the first field that is bruteforcable */
+	i = find_best_abfable();
+	if (i == -1) {
+		winprintf(wtext, "\n\rNo more brutefore possibilities.\n\rRestoring backup");
+		restore_backup();
+		return;
+	}
+	winprintf(wtext, "\n\r%d - %d", i, field[i].possible);
 	make_backup();
 	if (!bruteforced)
 		bruteforced = 2;
 	else
 		bruteforced++;
-
-
-	/* find the first field that is bruteforcable */
-	i = find_first_abfable();
+	winprintf(wtext, "\n\rtries %d", bruteforced);
 	for (num=1; num<10; num++) {
 		if( (field[i].possible & vtom(num)) && !(field[i].bftry & vtom(num)) ) {
+			winprintf(wtext, "\n\rbruteforcing %d(%d) value %d", i, i_to_brc(BLOCK, i), num);
+			// bf_printfield(BLOCK, i_to_brc(BLOCK, i));
 			field[i].value = num;
 			field[i].possible = 0x0;
 			field[i].left = 0;

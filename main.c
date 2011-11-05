@@ -79,7 +79,6 @@ int main(int argc, char **argv)
 				}
 			}
 			if (bruteforced > 1) {
-				winprintf(wtext, "\n\rRestoring backup");
 				if (restore_backup() == -1)
 					winprintf(wtext, "\n\rRestore not possible");
 			}

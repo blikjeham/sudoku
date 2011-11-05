@@ -34,6 +34,7 @@ struct square {
 
 /* Bruteforce backup */
 struct bf_backups {
+	int depth;
 	struct square current[81];
 	struct bf_backups *previous;
 } *bf_backups;
