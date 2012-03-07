@@ -1,0 +1,13 @@
+Installation instructions
+
+This sudoku solver is made for GNU systems. It uses a GNU makefile.
+To compile it just type:
+
+  make
+
+on GNU/Linux systems.
+On FreeBSD type:
+
+  gmake
+
+
