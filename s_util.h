@@ -85,18 +85,6 @@ void fill_all(void);
  */
 int i_to_brc(int, int );
 
-/* Check for the occurance of a mask in the brc
- * 'normal' (i.e. loose) function allows for other
- * possibilities to be present.
- * exact only matches the mask when no other possibilities
- * are present.
- */
-int check_num_brc(int, int *, int, int);
-int check_num_brc_exact(int, int *, int, int);
-int check_num_brc_loose(int, int *, int, int);
-
-int check_num(int, int, int);
-
 void set_num(int, int, int);
 
 /* Remove the possibilities for a value from a BRC */
@@ -105,9 +93,6 @@ void fill_brc(int, int , int );
 void fill_brc_ex(int , int , int *, int );
 
 void fill_brc_double(int , int , int *, int );
-
-/* convert mask to number of possibilities */
-int mtop(int );
 
 /* value to mask
    mask to value */

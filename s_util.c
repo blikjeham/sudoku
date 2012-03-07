@@ -29,6 +29,136 @@ void winprintf(WINDOW *wfield, char *fmt, ...)
 	va_end(va);
 }
 
+/* Convert mask to number of possibilities */
+static int mtop(int mask)
+{
+	int i;
+	int count=0;
+	for (i=1; i<10; i++) {
+		if (mask & vtom(i))
+			count++;
+	}
+	return count;
+}
+
+int vtom(int value)
+{
+	return(1 << (value-1));
+}
+
+int mtov(int mask)
+{
+	int i;
+	for (i = 0; i < 10; i++) {
+		if ((mask >> i) == 0)
+			return(i);
+	}
+	return(-1);
+}
+
+/* Check for the occurance of a mask in the brc
+ * 'normal' (i.e. loose) function allows for other
+ * possibilities to be present.
+ * exact only matches the mask when no other possibilities
+ * are present.
+ */
+static int check_num_brc(int brc, int *x_brc, int where, int mask)
+{
+	int i;
+	int count=0;
+
+	for (i=0; i<81; i++) {
+		if ( (i_to_brc(brc, i) == where)
+		     && (field[i].value == 0)
+		     && ((field[i].possible & mask) == mask)
+		     ) {
+			count++;
+			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
+			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
+			x_brc[COL] |= vtom(i_to_brc(COL, i)+1);
+		}
+	}
+	return(count);
+}
+
+static int check_num_brc_exact(int brc, int *x_brc, int where, int mask)
+{
+	int i;
+	int count=0;
+
+	for (i=0; i<81; i++) {
+		if ( (brc == BLOCK)
+		     && (i_to_brc(BLOCK, i) == where)
+		     && (field[i].value == 0)
+		     && (field[i].possible == mask)
+		     ) {
+			count++;
+			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
+			x_brc[COL] |= vtom(i_to_brc(COL, i)+1);
+		}
+		if ( (brc == ROW)
+		     && (i_to_brc(ROW, i) == where)
+		     && (field[i].value == 0)
+		     && (field[i].possible == mask)
+		     ) {
+			count++;
+			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
+			x_brc[COL] |= vtom(i_to_brc(COL, i)+1);
+		}
+		if ( (brc == COL)
+		     && (i_to_brc(COL, i) == where)
+		     && (field[i].value == 0)
+		     && (field[i].possible == mask)
+		     ) {
+			count++;
+			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
+			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
+		}
+	}
+	return(count);
+}
+
+static int check_num_brc_loose(int brc, int *x_brc, int where, int mask)
+{
+	int i;
+	int count=0;
+	int extracount=0;
+
+	for (i=0; i<81; i++) {
+		if ( (i_to_brc(brc, i) == where)
+		     && (field[i].value == 0)
+		     && ((field[i].possible & mask) == mask)
+		     ) {
+			count++;
+			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
+			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
+			x_brc[COL] |= vtom(i_to_brc(COL, i)+1);
+		} else if ( (i_to_brc(brc, i) == where)
+			    && (field[i].value == 0)
+			    && (field[i].possible & mask)
+			    ) {
+			extracount++;
+		}
+	}
+	return((extracount*10)+count);
+}
+
+int check_num(int brc, int where, int mask)
+{
+	int i;
+	int num=0;
+
+	for (i=0; i<81; i++) {
+		if ( (i_to_brc(brc, i) == where)
+		     && (field[i].value == 0)
+		     && (field[i].possible & mask)
+		     ) {
+			num++;
+		}
+	}
+	return(num);
+}
+
 int is_valid(void)
 {
 	int i;
@@ -287,103 +417,6 @@ int i_to_brc(int brc, int where)
 	return(0);
 }
 
-int check_num_brc(int brc, int *x_brc, int where, int mask)
-{
-	int i;
-	int count=0;
-
-	for (i=0; i<81; i++) {
-		if ( (i_to_brc(brc, i) == where)
-		     && (field[i].value == 0)
-		     && ((field[i].possible & mask) == mask)
-		     ) {
-			count++;
-			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
-			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
-			x_brc[COL] |= vtom(i_to_brc(COL, i)+1);
-		}
-	}
-	return(count);
-}
-
-int check_num_brc_exact(int brc, int *x_brc, int where, int mask)
-{
-	int i;
-	int count=0;
-
-	for (i=0; i<81; i++) {
-		if ( (brc == BLOCK)
-		     && (i_to_brc(BLOCK, i) == where)
-		     && (field[i].value == 0)
-		     && (field[i].possible == mask)
-		     ) {
-			count++;
-			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
-			x_brc[COL] |= vtom(i_to_brc(COL, i)+1);
-		}
-		if ( (brc == ROW)
-		     && (i_to_brc(ROW, i) == where)
-		     && (field[i].value == 0)
-		     && (field[i].possible == mask)
-		     ) {
-			count++;
-			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
-			x_brc[COL] |= vtom(i_to_brc(COL, i)+1);
-		}
-		if ( (brc == COL)
-		     && (i_to_brc(COL, i) == where)
-		     && (field[i].value == 0)
-		     && (field[i].possible == mask)
-		     ) {
-			count++;
-			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
-			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
-		}
-	}
-	return(count);
-}
-
-int check_num_brc_loose(int brc, int *x_brc, int where, int mask)
-{
-	int i;
-	int count=0;
-	int extracount=0;
-
-	for (i=0; i<81; i++) {
-		if ( (i_to_brc(brc, i) == where)
-		     && (field[i].value == 0)
-		     && ((field[i].possible & mask) == mask)
-		     ) {
-			count++;
-			x_brc[BLOCK] |= vtom(i_to_brc(BLOCK, i)+1);
-			x_brc[ROW] |= vtom(i_to_brc(ROW, i)+1);
-			x_brc[COL] |= vtom(i_to_brc(COL, i)+1);
-		} else if ( (i_to_brc(brc, i) == where)
-			    && (field[i].value == 0)
-			    && (field[i].possible & mask)
-			    ) {
-			extracount++;
-		}
-	}
-	return((extracount*10)+count);
-}
-
-int check_num(int brc, int where, int mask)
-{
-	int i;
-	int num=0;
-
-	for (i=0; i<81; i++) {
-		if ( (i_to_brc(brc, i) == where)
-		     && (field[i].value == 0)
-		     && (field[i].possible & mask)
-		     ) {
-			num++;
-		}
-	}
-	return(num);
-}
-
 void set_num(int brc, int where, int value)
 {
 	int i;
@@ -533,33 +566,6 @@ void fill_brc(int brc, int where, int value)
 		break;
 	}
 }
-
-int mtop(int mask)
-{
-	int i;
-	int count=0;
-	for (i=1; i<10; i++) {
-		if (mask & vtom(i))
-			count++;
-	}
-	return count;
-}
-
-int vtom(int value)
-{
-	return(1 << (value-1));
-}
-
-int mtov(int mask)
-{
-	int i;
-	for (i = 0; i < 10; i++) {
-		if ((mask >> i) == 0)
-			return(i);
-	}
-	return(-1);
-}
-
 
 /* is the number still a possibility? */
 int get_value(int possib)
