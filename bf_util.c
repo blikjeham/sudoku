@@ -8,30 +8,56 @@
 #include "bf_util.h"
 #include "s_util.h"
 
-int is_bf_able(int where)
+static int brc_to_i(int brc, int which, int where)
 {
-	if ((field[where].initial > 0)
-	    || (field[where].value > 0)
-	    || (field[where].bftry != field[where].possible)
-	    ) {
-		winprintf(wtext, "\n\rNot bruteforcable (%d)\n\r", where);
-		return(0);
+	if (brc == BLOCK) {
+		return( ((((which/3)*3)*9) + ((which%3)*3)) + (((where/3)*9)+where%3) );
 	}
-	else {
-		return(1);
+	if (brc == ROW) {
+		return((which*9)+where);
 	}
+	if (brc == COL) {
+		return((where*9)+which);
+	}
+	return(-1);
 }
 
-int is_abf_able(int where)
+static int is_bf_able(int where)
 {
-	if ((field[where].initial > 0) || (field[where].value > 0)) {
+	if (field[where].initial > 0) {
+	    winprintf(wtext, "\n\rInitial value: %d\n\r", field[where].initial);
+	    return(0);
+	}
+	if (field[where].value > 0) {
+	    winprintf(wtext, "\n\rValue: %d\n\r", field[where].value);
+	    return(0);
+	}
+	if (field[where].bftry == field[where].possible) {
+	    winprintf(wtext, "\n\rAlready tried those possibilities\n\r");
+	    return(0);
+	}
+	return(1);
+}
+
+static int is_abf_able(int where)
+{
+	if ((field[where].initial > 0) || (field[where].value > 0) || field[where].bftry == field[where].possible) {
 		return(0);
 	} else {
 		return(1);
 	}
 }
 
-void bf_set_value(int i)
+static void bf_set_value(int i, int value)
+{
+	field[i].value = value;
+	field[i].possible = 0x0;
+	field[i].left = 0;
+	field[i].bftry |= vtom(value);
+	bf_backups->current[i].bftry |= vtom(value);
+}
+
+static void bf_enter_value(int i)
 {
 	int num;
 	int value=0;
@@ -41,20 +67,23 @@ void bf_set_value(int i)
 		if (field[i].possible & vtom(num))
 			winprintf(wtext, "%d ", num);
 	}
+	winprintf(wtext, "\n\rAlready tried: ");
+	for (num=1; num <=9; num++) {
+		if (field[i].bftry & vtom(num))
+			winprintf(wtext, "%d ", num);
+	}
 	while (value<1 || value>9) {
 		winprintf(wtext, "\n\rEnter a value: ");
 		value = wgetch(wtext) % 0x30;
 	}
 	if (field[i].possible & vtom(value)) {
-		field[i].value = value;
-		field[i].possible = 0x0;
-		field[i].left = 0;
+		bf_set_value(i, value);
 	} else {
-		bf_set_value(i);
+		bf_enter_value(i);
 	}
 }
 
-void bf_getfield(int brc, int where)
+static void bf_getfield(int brc, int where)
 {
 	int which=-1;
 	int i=-1;
@@ -69,14 +98,15 @@ void bf_getfield(int brc, int where)
 	}
 	i = brc_to_i(brc, where, which);
 	if (is_bf_able(i)) {
-		bf_set_value(i);
+		bf_enter_value(i);
 	} else {
+		sleep(3);
 		bruteforce();
 	}
 	
 }
 
-void bf_block(void)
+static void bf_block(void)
 {
 	int block=-1;
 	while (block<0 || block>8) {
@@ -87,7 +117,7 @@ void bf_block(void)
 	bf_getfield(BLOCK, block);
 }
 
-void bf_row(void)
+static void bf_row(void)
 {
 	int row=-1;
 	while (row<0 || row>8) {
@@ -98,7 +128,7 @@ void bf_row(void)
 	bf_getfield(ROW, row);
 }
 
-void bf_col(void)
+static void bf_col(void)
 {
 	int col=-1;
 	while (col<0 || col>8) {
@@ -107,20 +137,6 @@ void bf_col(void)
 	}
 	winprintf(wtext, "\n\rselected column %d\n\r", col);
 	bf_getfield(COL, col);
-}
-
-int brc_to_i(int brc, int which, int where)
-{
-	if (brc == BLOCK) {
-		return( ((((which/3)*3)*9) + ((which%3)*3)) + (((where/3)*9)+where%3) );
-	}
-	if (brc == ROW) {
-		return((which*9)+where);
-	}
-	if (brc == COL) {
-		return((where*9)+which);
-	}
-	return(-1);
 }
 
 void bf_printfield(int brc, int where)
@@ -174,7 +190,7 @@ void bf_printfield(int brc, int where)
 	winprintf(wfield, "left: %d\n\r", get_left());
 }
 
-int make_backup()
+static int make_backup(void)
 {
 	struct bf_backups *new;
 	int i;
@@ -193,7 +209,7 @@ int make_backup()
 	return(0);
 }
 
-int restore_backup()
+int restore_backup(void)
 {
 	struct bf_backups *old;
 	int i;
@@ -215,11 +231,10 @@ void bruteforce(void)
 	char brc=0;
 	wclear(wtext);
 	wrefresh(wtext);
-	if (!bruteforced) {
-		winprintf(wtext, "\n\rBacking up the field for undo.");
-		make_backup();
-		bruteforced = 1;
-	}
+	winprintf(wtext, "\n\rBacking up the field for undo.");
+	make_backup();
+	bruteforced = 1;
+
 
 	winprintf(wtext, "\n\rSelect a block, row, or column [b/r/c]?");
 	brc = wgetch(wtext);
@@ -243,7 +258,7 @@ void bruteforce(void)
 	}
 }
 
-int find_first_abfable(void)
+static int find_first_abfable(void)
 {
 	int i = 0;
 	for (i=0; i<81; i++) {
@@ -254,7 +269,7 @@ int find_first_abfable(void)
 	return(-1);
 }
 
-int find_best_abfable(void)
+static int find_best_abfable(void)
 {
 	int i = 0;
 	int bestfield = -1;
@@ -293,13 +308,7 @@ void autobruteforce(void)
 	for (num=1; num<10; num++) {
 		if( (field[i].possible & vtom(num)) && !(field[i].bftry & vtom(num)) ) {
 			winprintf(wtext, "\n\rbruteforcing %d(%d) value %d", i, i_to_brc(BLOCK, i), num);
-			// bf_printfield(BLOCK, i_to_brc(BLOCK, i));
-			field[i].value = num;
-			field[i].possible = 0x0;
-			field[i].left = 0;
-			field[i].bftry |= vtom(num);
-			/* also modify the bftry of the backup, so we can keep track */
-			bf_backups->current[i].bftry |= vtom(num);
+			bf_set_value(i, num);
 		}
 	}
 }
