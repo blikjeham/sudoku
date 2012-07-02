@@ -237,7 +237,7 @@ void bruteforce(void)
 	bruteforced = 1;
 
 
-	winprintf(wtext, "\n\rSelect a block, row, or column [b/r/c]?");
+	winprintf(wtext, "\n\rSelect a block, row, or\ncolumn [b/r/c]?");
 	brc = wgetch(wtext);
 	switch(brc) {
 	case 'b':

@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 
 	/* Set the windows */
 	wfield = newwin(20,46,3,3);
-	wtext = newwin(18,46,3,50);
+	wtext = newwin(18,25,3,50);
 	scrollok(wtext, TRUE);
 
 #else /* HAVE_NCURSES */
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 					winprintf(wfield, "unsolvable?\n\r");
 					wrefresh(wfield);
 					printfield(wfield, 1);
-					winprintf(wtext, "\n\rDo you wish to bruteforce the sudoku? [a/y/N]");
+					winprintf(wtext, "\n\rDo you wish to bruteforce\nthe sudoku? [a/y/N]");
 
 					yesno = wgetch(wtext);
 					if(yesno == 'Y' || yesno == 'y') {
