@@ -144,8 +144,6 @@ void bf_printfield(int brc, int where)
 {
 	int i;
 	wmove(wfield, 0,0);
-	wclear(wfield);
-	wrefresh(wfield);
 
 	winprintf(wfield, "    0   1   2     3   4   5     6   7   8\n\r");
 	winprintf(wfield, " +-------------+-------------+-------------+\n\r0| ");
