@@ -603,7 +603,7 @@ int final_check(void)
 			mask=0x0;
 			
 			/* print the field using highlights. */
-			bf_printfield(brc, where);
+			bf_printfield(brc, where, -1);
 			for (i=0; i<81; i++) {
 				if (i_to_brc(brc, i) == where) {
 					mask |= vtom(field[i].value);
@@ -614,4 +614,74 @@ int final_check(void)
 		}
 	}
 	return(1);
+}
+
+int solve_run(int *count)
+{
+	int previousleft = get_left();
+	int left = previousleft;
+	printfield(wfield, 1);
+	check_filled();
+	printfield(wfield, 1);
+	check_only();
+	printfield(wfield, 1);
+	check_filled();
+	printfield(wfield, 1);
+	left = get_left();
+	if (left != previousleft) {
+		*count = 0;
+		return left;
+	}
+	switch(*count){
+	case 0:
+		check_single();
+		break;
+	case 1:
+		check_double();
+		break;
+	case 2:
+		check_double_value_exact();
+		break;
+	case 3:
+		check_double_value_loose();
+		break;
+	default:
+		*count = start_bruteforce();
+	}
+	return get_left();
+}
+
+void field_init(int i)
+{
+	field[i].value = 0;
+	field[i].initial = 0;
+	field[i].bftry = 0x0;
+	field[i].possible = ALL;
+}
+
+int initialize(void)
+{
+#ifdef HAVE_NCURSES
+	if (!initscr()) {
+		printf("initscr failed");
+		return -1;
+	}
+
+	/* Initialize the colors */
+	start_color();
+	init_pair(1, COLOR_WHITE, COLOR_BLACK);
+	init_pair(2, COLOR_BLACK, COLOR_WHITE);
+
+	/* Set the windows */
+	wfield = newwin(20,46,3,3);
+	wtext = newwin(18,25,3,50);
+	scrollok(wtext, TRUE);
+
+#else /* HAVE_NCURSES */
+
+	wfield = NULL;
+	wtext = NULL;
+#endif /* HAVE_NCURSES */
+
+	return 0;
 }

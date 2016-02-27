@@ -58,10 +58,10 @@ static void bf_set_value(int i, int value)
 	bf_backups->current[i].bftry |= vtom(value);
 }
 
-static void bf_enter_value(int i)
+int bf_enter_value(int i)
 {
 	int num;
-	int value=0;
+	int value=-1;
        
 	winprintf(wtext, "\n\rPossible values are: ");
 	for (num=1; num<=9; num++) {
@@ -73,15 +73,24 @@ static void bf_enter_value(int i)
 		if (field[i].bftry & vtom(num))
 			winprintf(wtext, "%d ", num);
 	}
-	while (value<1 || value>9) {
+	while (value<0 || value>9) {
 		winprintf(wtext, "\n\rEnter a value: ");
-		value = wgetch(wtext) % 0x30;
+		value = wgetch(wtext);
+		if (value == KEY_BACKSPACE || value == '-') {
+			return -1;
+		}
+		value = value % 0x30;
 	}
 	if (field[i].possible & vtom(value)) {
+		winprintf(wtext, "\n\rEntered valeu: %d for %d", value, i);
 		bf_set_value(i, value);
+	} else if (value == 0) {
+		field[i].initial = 0;
+		return 0;
 	} else {
-		bf_enter_value(i);
+		return bf_enter_value(i);
 	}
+	return 1;
 }
 
 static void bf_getfield(int brc, int where)
@@ -92,7 +101,7 @@ static void bf_getfield(int brc, int where)
 	wclear(wfield);
 	wrefresh(wfield);
 
-	bf_printfield(brc, where);
+	bf_printfield(brc, where, -1);
 	while (which<0 || which>8) {
 		winprintf(wtext, "\n\rPlease select a field:");
 		which = wgetch(wtext) % 0x30;
@@ -140,7 +149,7 @@ static void bf_col(void)
 	bf_getfield(COL, col);
 }
 
-void bf_printfield(int brc, int where)
+void bf_printfield(int brc, int where, int j)
 {
 	int i;
 	wmove(wfield, 0,0);
@@ -151,6 +160,10 @@ void bf_printfield(int brc, int where)
 		/* highlight the correct BRC */
 		if (i_to_brc(brc, i) == where) {
 			wcolor_set(wfield, 2, NULL);
+			if (i == j) {
+				/* invert current selection */
+				wcolor_set(wfield, 1, NULL);
+			}
 		}
 		if (field[i].value == 0) {
 			winprintf(wfield, "%03d ", field[i].possible);
@@ -273,7 +286,7 @@ static int find_best_abfable(void)
 	int i = 0;
 	int bestfield = -1;
 	int mincount = 0;
-	
+
 	for (i=0; i<81; i++) {
 		if ( (is_abf_able(i))
 		     && (field[i].left > mincount)
@@ -289,11 +302,13 @@ void autobruteforce(void)
 {
 	int i = 0;
 	int num = 0;
-	
+
 	/* find the first field that is bruteforcable */
 	i = find_best_abfable();
 	if (i == -1) {
-		winprintf(wtext, "\n\rNo more brutefore possibilities.\n\rRestoring backup");
+		winprintf(wtext,
+			  "\n\rNo more brutefore possibilities."
+			  "\n\rRestoring backup");
 		restore_backup();
 		return;
 	}
@@ -305,9 +320,94 @@ void autobruteforce(void)
 		bruteforced++;
 	winprintf(wtext, "\n\rtries %d", bruteforced);
 	for (num=1; num<10; num++) {
-		if( (field[i].possible & vtom(num)) && !(field[i].bftry & vtom(num)) ) {
-			winprintf(wtext, "\n\rbruteforcing %d(%d) value %d", i, i_to_brc(BLOCK, i), num);
+		if( (field[i].possible & vtom(num)) &&
+		    !(field[i].bftry & vtom(num)) ) {
+			winprintf(wtext,
+				  "\n\rbruteforcing %d(%d) value %d", i,
+				  i_to_brc(BLOCK, i), num);
 			bf_set_value(i, num);
 		}
 	}
+}
+
+void check_validity(void)
+{
+	char yesno;
+	if (!is_valid()) {
+		winprintf(wtext, "\n\rSudoku is invalid.\n\r");
+		if (bruteforced == 1) {
+			winprintf(wtext,
+				  "Do you wish to restore the backup? [Y/n]");
+			yesno = wgetch(wtext);
+			if (yesno != 'n' && yesno != 'N') {
+				winprintf(wtext,
+					  "\n\rRestoring backup. You should try"
+					  "again.\n\r");
+				if (restore_backup() == -1)
+					winprintf(wtext,
+						  "Restore not possible\n\r");
+				bruteforced = 0;
+			}
+
+		}
+		if (bruteforced > 1) {
+			if (restore_backup() == -1)
+				winprintf(wtext, "\n\rRestore not possible");
+		}
+	}
+}
+
+int start_bruteforce(void)
+{
+	char yesno;
+	int count;
+	int i;
+	int left;
+	if (bruteforced > 1) {
+		autobruteforce();
+		left = (9*9)*9;
+		count = 0;
+		fill_all();
+		check_filled();
+		printfield(wfield, 1);
+	} else {
+		winprintf(wtext, "\n\runsolvable?\n\r");
+		wrefresh(wfield);
+		printfield(wfield, 1);
+		winprintf(wtext,
+			  "\n\rDo you wish to bruteforce\nthe sudoku? [a/y/N]");
+
+		yesno = wgetch(wtext);
+		if(yesno == 'Y' || yesno == 'y') {
+			/* bruteforce */
+			bruteforce();
+			/* reset the values since they are no longer to be */
+			/* trusted. */
+			left = (9*9)*9;
+			count = 0;
+			fill_all();
+			check_filled();
+			printfield(wfield, 1);
+
+		} else if(yesno == 'A' || yesno == 'a') {
+			/* Automatically brute force the sudoku */
+			autobruteforce();
+			left = (9*9)*9;
+			count = 0;
+			fill_all();
+			check_filled();
+			printfield(wfield, 1);
+
+		} else {
+			/* Print the remaining array, so we can save it */
+			for (i=0; i<81; i++)
+				winprintf(wfield, "%d", field[i].value);
+			winprintf(wfield, "\n\r");
+			wrefresh(wfield);
+			wgetch(wtext);
+			endwin();
+			exit(1);
+		}
+	}
+	return count;
 }

@@ -105,4 +105,10 @@ int get_value(int );
 /* Final validity check, just to be sure */
 int final_check(void);
 
+int solve_run(int *);
+
+void field_init(int );
+
+int initialize(void);
+
 #endif /* S_UTIL_H */
