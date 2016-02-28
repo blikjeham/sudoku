@@ -19,13 +19,20 @@ struct single block[9];
 
 int main(int argc, char **argv)
 {
+	char *filename;
 	FILE *fd;
 	int left = (9*9)*9;
 	int count=0;
 
+	if (argc == 2) {
+		filename = argv[1];
+	} else {
+		filename = "fields.sud";
+	}
+
 	bf_backups = malloc(sizeof(struct bf_backups));
 
-	if (!(fd = fopen("fields.sud", "r"))) {
+	if (!(fd = fopen(filename, "r"))) {
 		printf("error opening file\n");
 		exit(1);
 	}
@@ -45,7 +52,9 @@ int main(int argc, char **argv)
 	/* main loop */
 	while (left > 0) {
 		check_validity();
-		left = solve_run(&count);
+		solve_run(&count);
+		check_validity();
+		left = get_left();
 		count++;
 	}
 	if (final_check()) {
@@ -54,7 +63,7 @@ int main(int argc, char **argv)
 		winprintf(wtext, "\n\rThere are still some errors\n\r");
 	}
 	printfield(wfield, 1);
-	wgetch(wtext);
+	press_any_key();
 	endwin();
 	return(0);
 }

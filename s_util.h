@@ -14,6 +14,9 @@
  */
 void winprintf(WINDOW *, char *, ...);
 
+/* ask the user to press any key to continue */
+void press_any_key(void);
+
 /* check if the sudoku is still valid.
  * It is invalid if there is a field with
  * no value and no possibilities left.
@@ -105,10 +108,11 @@ int get_value(int );
 /* Final validity check, just to be sure */
 int final_check(void);
 
+/* One solve run at a time. Supply pointer to count */
 int solve_run(int *);
 
+/* Initialize the field and screen */
 void field_init(int );
-
 int initialize(void);
 
 #endif /* S_UTIL_H */

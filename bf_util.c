@@ -62,7 +62,7 @@ int bf_enter_value(int i)
 {
 	int num;
 	int value=-1;
-       
+
 	winprintf(wtext, "\n\rPossible values are: ");
 	for (num=1; num<=9; num++) {
 		if (field[i].possible & vtom(num))
@@ -78,11 +78,12 @@ int bf_enter_value(int i)
 		value = wgetch(wtext);
 		if (value == KEY_BACKSPACE || value == '-') {
 			return -1;
+		} else if (value == 'q') {
+			return -2;
 		}
 		value = value % 0x30;
 	}
 	if (field[i].possible & vtom(value)) {
-		winprintf(wtext, "\n\rEntered valeu: %d for %d", value, i);
 		bf_set_value(i, value);
 	} else if (value == 0) {
 		field[i].initial = 0;
@@ -97,7 +98,7 @@ static void bf_getfield(int brc, int where)
 {
 	int which=-1;
 	int i=-1;
-	
+
 	wclear(wfield);
 	wrefresh(wfield);
 
@@ -160,10 +161,9 @@ void bf_printfield(int brc, int where, int j)
 		/* highlight the correct BRC */
 		if (i_to_brc(brc, i) == where) {
 			wcolor_set(wfield, 2, NULL);
-			if (i == j) {
-				/* invert current selection */
-				wcolor_set(wfield, 1, NULL);
-			}
+		} else if (i == j) {
+			/* highlight current selection */
+			wcolor_set(wfield, 2, NULL);
 		}
 		if (field[i].value == 0) {
 			winprintf(wfield, "%03d ", field[i].possible);
@@ -312,19 +312,24 @@ void autobruteforce(void)
 		restore_backup();
 		return;
 	}
-	winprintf(wtext, "\n\r%d - %d", i, field[i].possible);
+
 	make_backup();
+
 	if (!bruteforced)
 		bruteforced = 2;
 	else
 		bruteforced++;
+
 	winprintf(wtext, "\n\rtries %d", bruteforced);
 	for (num=1; num<10; num++) {
+
 		if( (field[i].possible & vtom(num)) &&
 		    !(field[i].bftry & vtom(num)) ) {
+
 			winprintf(wtext,
-				  "\n\rbruteforcing %d(%d) value %d", i,
-				  i_to_brc(BLOCK, i), num);
+				  "\n\rbruteforcing %d(%dx%d) value %d", i,
+				  i_to_brc(COL, i), i_to_brc(ROW, i), num);
+
 			bf_set_value(i, num);
 		}
 	}

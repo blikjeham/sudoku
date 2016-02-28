@@ -1,5 +1,7 @@
 sudoku
 sudoku.exe
+fill
+fill.exe
 *.o
 *~
 test

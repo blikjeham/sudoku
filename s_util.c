@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <strings.h>
+#include <sys/ioctl.h>
 #include "s_util.h"
 #include "bf_util.h"
 #include "const.h"
@@ -27,6 +28,12 @@ void winprintf(WINDOW *wfield, char *fmt, ...)
 	vprintf(fmt,va);
 #endif /* HAVE_NCURSES */
 	va_end(va);
+}
+
+void press_any_key(void)
+{
+	winprintf(wtext, "\r\nPress any key to continue");
+	wgetch(wtext);
 }
 
 /* Convert mask to number of possibilities */
@@ -334,7 +341,7 @@ void printfield(WINDOW *wfield, int possible)
 		} else {
 			winprintf(wfield, "|\n\r");
 		}
-	       
+
 	}
 	if (possible)
 		winprintf(wfield, " +-------------+-------------+-------------+\n\r\n\r");
@@ -428,7 +435,7 @@ void set_num(int brc, int where, int value)
 			field[i].value = value;
 			field[i].possible = 0;
 			field[i].left = 0;
-			
+
 			/* Check again for the impossibilities */
 			check_filled();
 		}
@@ -491,7 +498,8 @@ void fill_brc_double(int brc, int where, int *excl, int value)
 		if (brc == BLOCK) {
 			if ( (i_to_brc(BLOCK, i) == where)
 			     && (!((excl[ROW]) & (vtom(i_to_brc(ROW, i)+1)))
-				 || (!((excl[COL]) & (vtom(i_to_brc(COL, i)+1)))))
+				 || (!((excl[COL]) & (vtom(i_to_brc(COL,
+								    i)+1)))))
 			     && (field[i].value == 0)
 			     && (field[i].possible & value)
 			     ) {
@@ -504,7 +512,8 @@ void fill_brc_double(int brc, int where, int *excl, int value)
 		} else if (brc == ROW) {
 			if ( (i_to_brc(ROW, i) == where)
 			     && (!((excl[BLOCK]) & (vtom(i_to_brc(BLOCK, i)+1)))
-				 || (!((excl[COL]) & (vtom(i_to_brc(COL, i)+1)))))
+				 || (!((excl[COL]) & (vtom(i_to_brc(COL,
+								    i)+1)))))
 			     && (field[i].value == 0)
 			     && (field[i].possible & value)
 			     ) {
@@ -517,7 +526,8 @@ void fill_brc_double(int brc, int where, int *excl, int value)
 		} else if (brc == COL) {
 			if ( (i_to_brc(COL, i) == where)
 			     && (!((excl[BLOCK]) & (vtom(i_to_brc(BLOCK, i)+1)))
-				 || (!((excl[ROW]) & (vtom(i_to_brc(ROW, i)+1)))))
+				 || (!((excl[ROW]) & (vtom(i_to_brc(ROW,
+								    i)+1)))))
 			     && (field[i].value == 0)
 			     && (field[i].possible & value)
 			     ) {
@@ -541,17 +551,18 @@ void fill_brc(int brc, int where, int value)
 	extern struct single row[9];
 	extern struct single col[9];
 
-	/* Remove the possibility of value for each field in the block, row, or column */
+	/* Remove the possibility of value for each field in the */
+	/* block, row, or column */
 	for (i=0; i<81; i++) {
 		if ((i_to_brc(brc, i) == where)
-		    && (field[i].value == 0) 
+		    && (field[i].value == 0)
 		    && (field[i].possible & vtom(value))
 		    ) {
 			field[i].possible &= ~vtom(value);
 			field[i].left--;
 		}
 	}
-			
+
 	/* set filled for this value */
 	switch(brc) {
 	case BLOCK:
@@ -601,7 +612,7 @@ int final_check(void)
 	for (where=0; where<9; where++) {
 		for (brc=0; brc<3; brc++) {
 			mask=0x0;
-			
+
 			/* print the field using highlights. */
 			bf_printfield(brc, where, -1);
 			for (i=0; i<81; i++) {
@@ -648,6 +659,7 @@ int solve_run(int *count)
 	default:
 		*count = start_bruteforce();
 	}
+	printfield(wfield, 1);
 	return get_left();
 }
 
@@ -662,6 +674,7 @@ void field_init(int i)
 int initialize(void)
 {
 #ifdef HAVE_NCURSES
+	struct winsize wsize;
 	if (!initscr()) {
 		printf("initscr failed");
 		return -1;
@@ -672,9 +685,15 @@ int initialize(void)
 	init_pair(1, COLOR_WHITE, COLOR_BLACK);
 	init_pair(2, COLOR_BLACK, COLOR_WHITE);
 
+	/* Get the screen size */
+	if (ioctl(0, TIOCGWINSZ, (char *) &wsize) < 0) {
+		printf("TIOCGWINSZ error");
+		exit(1);
+	}
+
 	/* Set the windows */
-	wfield = newwin(20,46,3,3);
-	wtext = newwin(18,25,3,50);
+	wfield = newwin(20, 46, 3, 3);
+	wtext = newwin(20, wsize.ws_col - 53, 3, 50);
 	scrollok(wtext, TRUE);
 
 #else /* HAVE_NCURSES */
