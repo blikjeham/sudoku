@@ -9,11 +9,6 @@
 #include <stdio.h>
 #include <ncurses.h>
 
-/* printf to a window if we have ncurses
- * else we will print it to stdout.
- */
-void winprintf(WINDOW *, char *, ...);
-
 /* check if the sudoku is still valid.
  * It is invalid if there is a field with
  * no value and no possibilities left.
@@ -59,17 +54,10 @@ void check_double_value_loose(void);
 /* get the number of possible values left */
 int get_left(void);
 
-/* print the field so far
- * If the second argument is true, print the
- * possibilities alongside the actual values.
- * That should make debugging easier.
- */
-void printfield(WINDOW *, int );
-
 /* read the values from a file
  * Returns 0 on success
  */
-int readfield(FILE *);
+int readfield(const char *);
 
 /* fill all empty fields with all possibilities
  * We will remove these possibilities one by one
@@ -104,5 +92,8 @@ int get_value(int );
 
 /* Final validity check, just to be sure */
 int final_check(void);
+
+/* Main solve routine */
+int solve(int *, int *);
 
 #endif /* S_UTIL_H */

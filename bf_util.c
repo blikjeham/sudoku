@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "const.h"
+#include "ui.h"
 #include "bf_util.h"
 #include "s_util.h"
 

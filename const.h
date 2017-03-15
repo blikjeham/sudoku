@@ -47,12 +47,4 @@ struct single {
 	int notfilled;
 };
 
-#ifdef HAVE_NCURSES
-WINDOW *wfield;
-WINDOW *wtext;
-#else
-void *wfield;
-void *wtext;
-#endif
-
 #endif /* CONST_H */

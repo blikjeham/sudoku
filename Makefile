@@ -13,10 +13,10 @@ INSTALL = /usr/bin/install
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_DATA = ${INSTALL} -m 644
 
-DEPS = config.h s_util.h const.h
-OBJ = main.o s_util.o bf_util.o
+DEPS = config.h s_util.h const.h ui.h
+OBJ = main.o s_util.o bf_util.o ui.o
 
-TEST_OBJ = test.o s_util.o bf_util.o
+TEST_OBJ = test.o s_util.o bf_util.o ui.o
 
 %.o: %.c $(DEPS)
 	$(COMPILE) -c -o $@ $<

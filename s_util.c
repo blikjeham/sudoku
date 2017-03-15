@@ -1,11 +1,8 @@
 #include "config.h"
 
-#ifdef HAVE_NCURSES
-#include <ncurses.h>
-#endif /* HAVE_NCURSES */
-
 #include <stdlib.h>
 #include <strings.h>
+#include "ui.h"
 #include "s_util.h"
 #include "bf_util.h"
 #include "const.h"
@@ -13,21 +10,6 @@
 extern struct single row[9];
 extern struct single col[9];
 extern struct single block[9];
-
-void winprintf(WINDOW *wfield, char *fmt, ...)
-{
-	va_list va;
-	va_start(va, fmt);
-#ifdef HAVE_NCURSES
-	char buffer[1024];
-	vsnprintf(buffer, 1023, fmt, va);
-	waddstr(wfield, buffer);
-	wrefresh(wfield);
-#else
-	vprintf(fmt,va);
-#endif /* HAVE_NCURSES */
-	va_end(va);
-}
 
 /* Convert mask to number of possibilities */
 static int mtop(int mask)
@@ -289,75 +271,17 @@ int get_left(void)
 	return(left);
 }
 
-void printfield(WINDOW *wfield, int possible)
+int readfield(const char *filename)
 {
-	int i;
-	wmove(wfield, 0,0);
-	werase(wfield);
-	wrefresh(wfield);
-	if (possible) {
-		winprintf(wfield, "    0   1   2     3   4   5     6   7   8\n\r");
-		winprintf(wfield, " +-------------+-------------+-------------+\n\r0| ");
-	}
-	else {
-		winprintf(wfield, "   0 1 2   3 4 5   6 7 8\n\r");
-		winprintf(wfield, " +-------+-------+-------+\n\r0| ");
-	}
-	for (i=0; i<81; i++) {
-		if (field[i].value == 0) {
-			if (possible)
-				winprintf(wfield, "%03d ", field[i].possible);
-			else
-				winprintf(wfield, ". ");
-		} else {
-			if (possible) {
-				/* Print initial values different than later values */
-				if (field[i].initial) {
-					winprintf(wfield, " %d  ", field[i].value);
-				} else {
-					winprintf(wfield, ".%d. ", field[i].value);
-				}
-			} else {
-				winprintf(wfield, "%d ", field[i].value);
-			}
-		}
-		if ((i % 81) != 80) {
-			if ((i % 3) == 2)
-				winprintf(wfield, "| ");
-			if ((i % 27) == 26) {
-				if (possible)
-					winprintf(wfield, "\n\r +-------------+-------------+-------------+");
-				else
-					winprintf(wfield, "\n\r +-------+-------+-------+");
-			}
-			if ((i % 9) == 8)
-				winprintf(wfield, "\n\r%d| ", (i/9)+1);
-		} else {
-			winprintf(wfield, "|\n\r");
-		}
-	       
-	}
-	if (possible)
-		winprintf(wfield, " +-------------+-------------+-------------+\n\r\n\r");
-	else
-		winprintf(wfield, " +-------+-------+-------+\n\r\n\r");
-	if (possible) {
-		for (i=1; i<10; i++) {
-			winprintf(wfield, "%d=%d; ", i, vtom(i));
-			if (i % 5 == 0)
-				winprintf(wfield, "\n\r");
-		}
-		winprintf(wfield, "\n\r");
-	}
-	wrefresh(wfield);
-	winprintf(wfield, "left: %d\n\r", get_left());
-}
-
-int readfield(FILE *fd)
-{
+	FILE *fd;
 	int i;
 	char number;
 	extern struct square field[81];
+
+	if (!(fd = fopen(filename, "r"))) {
+		printf("error opening file\n");
+		return -1;
+	}
 
 	for (i=0; i<81; i++) {
 		number = fgetc(fd);
@@ -429,7 +353,7 @@ void set_num(int brc, int where, int value)
 			field[i].value = value;
 			field[i].possible = 0;
 			field[i].left = 0;
-			
+
 			/* Check again for the impossibilities */
 			check_filled();
 		}
@@ -545,14 +469,14 @@ void fill_brc(int brc, int where, int value)
 	/* Remove the possibility of value for each field in the block, row, or column */
 	for (i=0; i<81; i++) {
 		if ((i_to_brc(brc, i) == where)
-		    && (field[i].value == 0) 
+		    && (field[i].value == 0)
 		    && (field[i].possible & vtom(value))
 		    ) {
 			field[i].possible &= ~vtom(value);
 			field[i].left--;
 		}
 	}
-			
+
 	/* set filled for this value */
 	switch(brc) {
 	case BLOCK:
@@ -591,6 +515,56 @@ int get_value(int possib)
 	return 0;
 }
 
+int stuck(int *count, int *previousleft)
+{
+	char yesno;
+	int left;
+	int i;
+	if (bruteforced > 1) {
+		autobruteforce();
+		left = (9*9)*9;
+		*count = 0;
+		fill_all();
+		check_filled();
+		printfield(wfield, 1);
+	} else {
+		winprintf(wfield, "unsolvable?\n\r");
+		wrefresh(wfield);
+		printfield(wfield, 1);
+		winprintf(wtext, "\n\rDo you wish to bruteforce\nthe sudoku? [a/y/N]");
+
+		yesno = wgetch(wtext);
+		if(yesno == 'Y' || yesno == 'y') {
+			/* bruteforce */
+			bruteforce();
+			/* reset the values since they are no longer to be trusted. */
+			left = (9*9)*9;
+			*count = 0;
+			fill_all();
+			check_filled();
+			printfield(wfield, 1);
+
+		} else if(yesno == 'A' || yesno == 'a') {
+			/* Automatically brute force the sudoku */
+			autobruteforce();
+			left = (9*9)*9;
+			*count = 0;
+			fill_all();
+			check_filled();
+			printfield(wfield, 1);
+		} else {
+			/* Print the remaining array, so we can save it */
+			for (i=0; i<81; i++)
+				winprintf(wfield, "%d", field[i].value);
+			winprintf(wfield, "\n\r");
+			wrefresh(wfield);
+			endwin();
+			exit(1);
+		}
+	}
+	return left;
+}
+
 int final_check(void)
 {
 	int where;
@@ -602,7 +576,7 @@ int final_check(void)
 	for (where=0; where<9; where++) {
 		for (brc=0; brc<3; brc++) {
 			mask=0x0;
-			
+
 			/* print the field using highlights. */
 			bf_printfield(brc, where);
 			for (i=0; i<81; i++) {
@@ -611,8 +585,74 @@ int final_check(void)
 				}
 			}
 			if (mask != ALL)
-				return(0);
+				return 0;
 		}
 	}
-	return(1);
+	return 1;
+}
+
+int invalid(void)
+{
+	winprintf(wtext, "\n\rSudoku is invalid.\n\r");
+	if (bruteforced == 1) {
+		if (prompt_yesno(1, "Do you wish to restore the backup?")) {
+			winprintf(wtext, "\n\rRestoring backup.",
+				  " You should try again.\n\r");
+			if (restore_backup() == -1)
+				winprintf(wtext, "Restore not possible\n\r");
+			bruteforced = 0;
+		}
+	}
+	if (bruteforced > 1) {
+		if (restore_backup() == -1)
+			winprintf(wtext, "\n\rRestore not possible");
+	}
+	return 0;
+}
+
+int solve(int *count, int *previousleft)
+{
+	int left = (9 * 9) * 9;
+
+	if (!is_valid()) {
+		invalid();
+	}
+	printfield(wfield, 1);
+	check_filled();
+	printfield(wfield, 1);
+
+	check_only();
+	printfield(wfield, 1);
+
+	check_filled();
+	printfield(wfield, 1);
+
+	left = get_left();
+
+	if (left != *previousleft) {
+		*previousleft = left;
+		*count = 0;
+	} else {
+		switch (*count) {
+		case 0:
+			check_single();
+			break;
+		case 1:
+			check_double();
+			break;
+		case 2:
+			check_double_value_exact();
+			break;
+		case 3:
+			check_double_value_loose();
+			break;
+		case 4:
+			if (left > 0) {
+				left = stuck(count, previousleft);
+			}
+			break;
+		}
+	}
+	*count += 1;
+	return left;
 }
